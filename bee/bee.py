@@ -191,6 +191,7 @@ def choose_region(area):
 
   logging.debug("Отправляем F8 - выбор и закрытие окна выбора региона")
   wsh.SendKeys("{F8}")
+  time.sleep(0.1)
   #TODO пока что это в зависимости от нужды и работоспособности, (потому что кажется можно обойтись банальным слипом) оставлю или изменю позже сейчас же разбираюсь с корректностью открытия поиска подходящих модеделей по детали и видимо окно не успевает закрыться до того момента, как мы уже пытаемся щелкнуть на кнопке вызывающем окно поиска подходящих моделей
 
   logging.debug("Вызываем метод выхода в главное меню непосредственно после выбора региона")
@@ -267,10 +268,10 @@ def search_applicability_in_current_area(catalog_number, cookie):
 
       #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
       
-      im = ImageGrab.grab((16, 351, 998, 673))
+      im = ImageGrab.grab((16, 351, 1014, 673))
       img_rgb = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
       cv.SetData(img_rgb, im.tostring(), im.size[0]*3)
-      img = cv.CreateImage((982, 322), cv.IPL_DEPTH_8U, 1)
+      img = cv.CreateImage((998, 322), cv.IPL_DEPTH_8U, 1)
       cv.CvtColor(img_rgb, img, cv.CV_RGB2GRAY)  
       # тут img_rgb и im уже не нужны, не знаю что там с памятью
 
@@ -291,9 +292,9 @@ def search_applicability_in_current_area(catalog_number, cookie):
       for y1, y2 in pairwise(lines):
         logging.debug("Крутимся в цилке прохода по линейкам")
         logging.debug("y1: " + str(y1) + " y2: " + str(y2))
+        accumulator = []
         for top in range(y1 + 4, y2, 16):
-          print top
-          accumulator = []
+          #print top
           logging.debug("Крутимся в цилке прохода по строкам внутри линейки, текущий верх: " + str(top))
           cv.SetImageROI(img, (0, top, 998, 11))
           
@@ -317,7 +318,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 #print x, y
                 s = cv.Get2D(res, y, x)
                 #print s[0]
-                if s[0] <= 10:
+                if s[0] <= 20:
                   #print element[0]
                   accumulator.append({'x': x, 'y': top, 'letter': element[0]})
                   #print x, y 
@@ -355,28 +356,35 @@ def search_applicability_in_current_area(catalog_number, cookie):
           #cv.WaitKey(0)
 
           #cv.DestroyWindow('image')
-          print 'asdf'
-          if len(accumulator) > 0:
-            tmp = ''
-            accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
-            #accumulator = sorted(accumulator, key=lambda k: k['x']) 
-            for i, letter in enumerate(accumulator):
-              if((letter['x'] - accumulator[i-1]['x']) > 10):
-                tmp += "&nbsp;" 
-                #sys.stdout.write('\t')
-              if((letter['x'] - accumulator[i-1]['x']) < 0):
-                tmp += "<br />"
-                #print ''
-              tmp += letter['letter']
-              #sys.stdout.write(letter['letter'])
-              
-            jug.publish(cookie, tmp + "<br />")
-            #pdb.set_trace()
-            print tmp 
-            #print '' 
-            #print 'end ' + str(time.time())
-          
-          #break      
+
+        if len(accumulator) > 0:
+          tmp = ['']
+          idx = 0
+          accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
+          #accumulator = sorted(accumulator, key=lambda k: k['x'])
+          for i, letter in enumerate(accumulator):
+            if((letter['x'] - accumulator[i-1]['x']) > 10):
+              tmp[idx] += "&nbsp;" 
+              #sys.stdout.write('\t')
+            if((letter['y'] > accumulator[i-1]['y'])):
+              idx = 0
+            if(letter['letter'] == ' | '):
+              #pdb.set_trace()
+              tmp[idx] += ' '
+              idx += 1
+              tmp.append('')
+              continue
+            
+            tmp[idx] += letter['letter']
+            #sys.stdout.write(letter['letter'])
+            
+          jug.publish(cookie, str(filter(len, tmp)) + "<br />")
+          #pdb.set_trace()
+          #print tmp 
+          #print '' 
+          #print 'end ' + str(time.time())
+        
+        #break      
       
       logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
       coords = find_match(False, ['images/Toyota EPC/Scroll down.png'], (1005, 653, 1006, 673), 100, False)
