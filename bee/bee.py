@@ -623,7 +623,7 @@ def collect_all_models():
 #goto_main_menu_toyota_epc()
 time.sleep(2)
 
-print time.time()
+#print time.time()
 
 # Увеличиваем
 for i in range(5):
@@ -642,8 +642,8 @@ tpl_cv = cv.CreateImageHeader(tpl_pil.size, cv.IPL_DEPTH_8U, 3)
 cv.SetData(tpl_cv, tpl_pil.tostring(), tpl_pil.size[0]*3)
 cv.CvtColor(tpl_cv, tpl_cv, cv.CV_RGB2BGR)
 
-cv.NamedWindow('tpl_cv', cv.CV_WINDOW_AUTOSIZE)
-cv.ShowImage('tpl_cv', tpl_cv)
+#cv.NamedWindow('tpl_cv', cv.CV_WINDOW_AUTOSIZE)
+#cv.ShowImage('tpl_cv', tpl_cv)
 #cv.WaitKey(0)
 
 click(1012, 656)
@@ -657,10 +657,10 @@ img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
 cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
 cv.CvtColor(img_cv, img_cv, cv.CV_RGB2BGR)
 
-cv.Rectangle(img_cv,
-  (256-203, 156-120),
-  (tpl_cv.width+256-203, tpl_cv.height+156-120),
-cv.Scalar(0, 1, 0, 0))
+#cv.Rectangle(img_cv,
+#  (256-203, 156-120),
+#  (tpl_cv.width+256-203, tpl_cv.height+156-120),
+#cv.Scalar(0, 1, 0, 0))
 
 #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
 #cv.ShowImage('image', img_cv)
@@ -671,20 +671,47 @@ cv.MatchTemplate(img_cv, tpl_cv, res, cv.CV_TM_SQDIFF)
 
 (minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
 
-print time.time()
+#print time.time()
 
-cv.Rectangle(img_cv, 
-  (minloc[0], minloc[1]),
-  (minloc[0] + tpl_cv.width, minloc[1] + tpl_cv.height),
-cv.Scalar(0, 1, 0, 0))
+#cv.Rectangle(img_cv, 
+#  (minloc[0], minloc[1]),
+#  (minloc[0] + tpl_cv.width, minloc[1] + tpl_cv.height),
+#cv.Scalar(0, 1, 0, 0))
 
-print 256 - 203 - minloc[0]
-print 156 - 120 - minloc[1]
+x_rel = 256 - 203 - minloc[0]
+y_rel = 156 - 120 - minloc[1]
 
-cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-cv.ShowImage('image', img_cv)
+print x_rel
+print y_rel
 
-cv.WaitKey(0)
+#cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+#cv.ShowImage('image', img_cv)
+
+#cv.WaitKey(0)
+
+for i in range(5):
+  click(219, 673)
+  time.sleep(0.1)
+  
+for i in range(5):
+  click(1011, 136)
+  time.sleep(0.1)
+
+
+img_pil = ImageGrab.grab((203, 120, 1004, 665))
+img_pil.save('1.png')
+
+for i in range(((665-120)/20) - 1):
+  click(1012, 656)
+  time.sleep(0.1)
+
+for i in range(((1004-203)/20) - 1):
+  click(995, 673)  
+  time.sleep(0.1)  
+
+img_pil = ImageGrab.grab((203, 120, 1004, 665))
+img_pil.save('2.png')  
+
 
 #for y in range(0, res.height):
 #  for x in range(0, res.width):
