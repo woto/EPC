@@ -258,6 +258,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
   
   
   last_iterate_on_list = False
+  sended_models = []
   
   while True:
     time.sleep(0.3)
@@ -270,6 +271,9 @@ def search_applicability_in_current_area(catalog_number, cookie):
     coords = find_match(False, ['images/Toyota EPC/Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 703), 100, False)
     if coords:
       logging.debug("Получили список подходящих моделей")
+      
+      time.sleep(0.1)
+      logging.debug("Поспали 0.1")
       
       logging.debug("Грабим область экрана с результатом списка моделей")
       img = pil2gray(ImageGrab.grab((16, 351, 1014, 673)))
@@ -296,11 +300,13 @@ def search_applicability_in_current_area(catalog_number, cookie):
           
           accumulator = []
           
+          #a
           # Могу отсекать прямо здесь для начала
-          if (y1+4+16 >= y2):
-            #pdb.set_trace()
+          if (y1+4+16 > y2):
+          #  #pdb.set_trace()
             continue
             
+          #b
           # Получается, что я закрашиваю соседнюю строку (решение) Ошибка возникает из-за того, что я беру top и независимо от всего
           # прибавляю к нему 11 (ниже)
           if (y1+11 < 11):
@@ -310,9 +316,11 @@ def search_applicability_in_current_area(catalog_number, cookie):
             logging.debug("Крутимся в цилке прохода по строкам внутри полоски, текущий верх: " + str(top))
             cv.SetImageROI(img, (0, top, 998, 11))
             
-            #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-            #cv.ShowImage('image', img)
-            #cv.WaitKey(0)
+            # 1
+            # cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+            # cv.ShowImage('image', img)
+            # cv.WaitKey(0)
+            # 1
                     
             for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), (' | ', 'Delimiter'), ('.', 'Point'))):
               tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_GRAYSCALE)
@@ -338,7 +346,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
             accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
             #accumulator = sorted(accumulator, key=lambda k: k['x'])
             for i, letter in enumerate(accumulator):
-              if((letter['x'] - accumulator[i-1]['x']) > 15):
+              if((letter['x'] - accumulator[i-1]['x']) >= 15):
                 tmp[idx] += " "
                 #sys.stdout.write('\t')
               if((letter['y'] > accumulator[i-1]['y'])):
@@ -359,12 +367,18 @@ def search_applicability_in_current_area(catalog_number, cookie):
             # этого можно избежать, если убедиться в том, что в нулевом столбце присутствует порядковый номер, т.е. не пусто
             tmp = [x.strip() for x in tmp]
             if (tmp[0] != ''):
-              tmp[6] = tmp[6].replace(' ', '')
-              #tmp = [x.replace('   ', ' ') for x in tmp]
-              #tmp = [x.replace('  ', ' ') for x in tmp]
-              tmp = filter(len, tmp)
-              tmp = ["<td>" + x + "</td>" for x in tmp]
-              jug.publish(cookie, "<tr>" + str(tmp) + "</tr>")
+              if tmp[0] not in sended_models:
+                #pdb.set_trace()
+                sended_models.append(tmp[0])
+                
+                tmp[6] = tmp[6].replace(' ', '')
+                #tmp = [x.replace('   ', ' ') for x in tmp]
+                #tmp = [x.replace('  ', ' ') for x in tmp]
+                tmp = filter(len, tmp)
+                #if tmp[0] == '018':
+                #  pdb.set_trace()
+                tmp = ["<td>" + x + "</td>" for x in tmp]
+                jug.publish(cookie, "<tr>" + str(tmp) + "</tr>")
       
         # TODO до сюда все проверил
         
@@ -407,18 +421,41 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 
                 (minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
                 
-                #cv.Rectangle(img_gray, 
-                #  (minloc[0], minloc[1]),
-                #  (minloc[0] + tpl_gray.width, minloc[1] + tpl_gray.height),
-                #cv.Scalar(0, 1, 0, 0))
+                previous_roi = cv.GetImageROI(img_gray)
+                cv.SetImageROI(img_gray, (minloc[0], minloc[1], tpl_gray.width, tpl_gray.height))
 
-                #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-                #cv.ShowImage('image', img_gray)        
-                #cv.WaitKey(0)
+                #img_gray_copy = cv.CreateImage((cv.GetImageROI(img_gray)[2] - cv.GetImageROI(img_gray)[0], cv.GetImageROI(img_gray)[3] - cv.GetImageROI(img_gray)[1]), cv.IPL_DEPTH_8U, 1)
+                #pdb.set_trace()
+                #cv.Copy(img_gray, img_gray_copy)
+                norm = -1
+                norm = cv.Norm( img_gray, tpl_gray );
+
+                cv.SetImageROI(img_gray, previous_roi)
+                # 2
+                cv.Rectangle(img_gray, 
+                  (minloc[0], minloc[1]),
+                  (minloc[0] + tpl_gray.width, minloc[1] + tpl_gray.height),
+                cv.Scalar(0, 1, 0, 0))
+                
+                
+                cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+                cv.ShowImage('image', img_gray)
+                
+                cv.NamedWindow('tpl', cv.CV_WINDOW_AUTOSIZE)
+                cv.ShowImage('tpl', tpl_gray)
+                
+                cv.WaitKey(0)
+                
+                cv.DestroyWindow('image')
+                cv.DestroyWindow('tpl')
+                # 2
                 
                 #pdb.set_trace()
+
+                print "minval: " + str(minval)
+                print "norm: " + str(norm)
                 
-                if (minval <= 0):
+                if (norm == 0):
                   logging.debug("Нашли интересующую область, запомненную ранее")
                   continue_iteration = True
                   break
