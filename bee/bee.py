@@ -257,8 +257,10 @@ def search_applicability_in_current_area(catalog_number, cookie):
   logging.debug("Вбили каталожный номер, нажали Enter и F10")
   
   
-  last_iterate_on_list = False
   sended_models = []
+  scroll_avaliable_first_check = True
+  scroll_avaliable = False
+  bottom_counter = 0
   
   while True:
     time.sleep(0.3)
@@ -302,24 +304,28 @@ def search_applicability_in_current_area(catalog_number, cookie):
           
           #a
           # Могу отсекать прямо здесь для начала
-          if (y1+4+16 > y2):
+          #if (y1+4+16 >= y2):
           #  #pdb.set_trace()
-            continue
+          #  continue
             
           #b
           # Получается, что я закрашиваю соседнюю строку (решение) Ошибка возникает из-за того, что я беру top и независимо от всего
           # прибавляю к нему 11 (ниже)
-          if (y1+11 < 11):
-            continue 
+          #if (y1+11 < 11):
+          #  continue 
             
           for top in range(y1 + 4, y2, 16):
             logging.debug("Крутимся в цилке прохода по строкам внутри полоски, текущий верх: " + str(top))
             cv.SetImageROI(img, (0, top, 998, 11))
             
+            if (float(y2-y1)/16 != (y2-y1)/16):
+              continue
+              
             # 1
-            # cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-            # cv.ShowImage('image', img)
-            # cv.WaitKey(0)
+            #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+            #cv.ShowImage('image', img)
+            #cv.WaitKey(0)
+            #pdb.set_trace()
             # 1
                     
             for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), (' | ', 'Delimiter'), ('.', 'Point'))):
@@ -378,95 +384,105 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 #if tmp[0] == '018':
                 #  pdb.set_trace()
                 tmp = ["<td>" + x + "</td>" for x in tmp]
+                #print tmp
+                #pdb.set_trace()
                 jug.publish(cookie, "<tr>" + str(tmp) + "</tr>")
       
-        # TODO до сюда все проверил
-        
-        logging.debug("Данные отправили, следующий шаг - проверка, не является ли эта итерация последней по данному списку моделей")
-        
-        #pdb.set_trace()
-        if not last_iterate_on_list:
-        
+        if scroll_avaliable_first_check:
+          logging.debug("Единоразовая проверка наличия скролла на 1 запрос каталожного(ых) номера(ов)")
+          scroll_avaliable_first_check = False
           logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
-          scroll_avaliable = False
           if (find_match(False, ['images/Toyota EPC/Scroll down.png'], (1005, 653, 1006, 673), 100, False)):
-            logging.debug("Т.к. скролл обнаружен, запоминаем нижнюю область экрана")
+            logging.debug("Скролл обнаружен")
+            scroll_avaliable = True
+          else:
+            logging.debug("Скролл не обнаружен")
+        
+        if scroll_avaliable:
+        
+          if bottom_counter < 2:
+          
             # Уменьшил правый x на 1. Было 997
+            logging.debug("Запоминаем нижнюю часть экрана")
             tpl_gray = pil2gray(ImageGrab.grab((16, 351+lines[-2], 996, 673)))
-            
+
             #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
             #cv.ShowImage('image', tpl_gray)
             #cv.WaitKey(0)                
-            
-            logging.debug("Нажимаем на скролл")
+
+            logging.debug("Нажимаем на скролл вниз")
             click(1005, 656)
             time.sleep(0.1)
             logging.debug("Поспали 0.1")
             
-            logging.debug("Проверяем не находимся ли мы к самому низу")
+            logging.debug("Проверяем не находимся ли мы в самому низу")
             coords = find_match(False, ['images/Toyota EPC/Scroll at bottom.png'], (993, 647, 1018, 673), 100, False)
+            
             if not coords:
               logging.debug("Нет, не находимся")
-              logging.debug("Следующим шагом заходим в цикл, в котором будем подниматься постепенно вверх, пока не найдем нижнюю область, запомненную ранее")
-              while True:
-                logging.debug("Возвращаемся назад щелчком на стрелку верхнего скролла")
-                click(1005, 340)
-                time.sleep(0.1)
-                logging.debug("Поспали 0.1")
-                
-                img_gray = pil2gray(ImageGrab.grab((16, 351, 1014, 673)))
-                
-                res = cv.CreateImage((img_gray.width - tpl_gray.width + 1, img_gray.height - tpl_gray.height + 1), cv.IPL_DEPTH_32F, 1)
-                cv.MatchTemplate(img_gray, tpl_gray, res, cv.CV_TM_SQDIFF)
-                
-                (minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
-                
-                previous_roi = cv.GetImageROI(img_gray)
-                cv.SetImageROI(img_gray, (minloc[0], minloc[1], tpl_gray.width, tpl_gray.height))
-
-                #img_gray_copy = cv.CreateImage((cv.GetImageROI(img_gray)[2] - cv.GetImageROI(img_gray)[0], cv.GetImageROI(img_gray)[3] - cv.GetImageROI(img_gray)[1]), cv.IPL_DEPTH_8U, 1)
-                #pdb.set_trace()
-                #cv.Copy(img_gray, img_gray_copy)
-                norm = -1
-                norm = cv.Norm( img_gray, tpl_gray );
-
-                cv.SetImageROI(img_gray, previous_roi)
-                # 2
-                cv.Rectangle(img_gray, 
-                  (minloc[0], minloc[1]),
-                  (minloc[0] + tpl_gray.width, minloc[1] + tpl_gray.height),
-                cv.Scalar(0, 1, 0, 0))
-                
-                
-                cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-                cv.ShowImage('image', img_gray)
-                
-                cv.NamedWindow('tpl', cv.CV_WINDOW_AUTOSIZE)
-                cv.ShowImage('tpl', tpl_gray)
-                
-                cv.WaitKey(0)
-                
-                cv.DestroyWindow('image')
-                cv.DestroyWindow('tpl')
-                # 2
-                
-                #pdb.set_trace()
-
-                print "minval: " + str(minval)
-                print "norm: " + str(norm)
-                
-                if (norm == 0):
-                  logging.debug("Нашли интересующую область, запомненную ранее")
-                  continue_iteration = True
-                  break
-              
-              if continue_iteration:
-                logging.debug("Переходим к следующей итерации цикла по полоскам")
-                continue
-                
             else:
-              logging.debug("Да, находимся")
-              last_iterate_on_list = True
+              bottom_counter += 1
+              logging.debug("Да, находимся, прибавили bottom_counter и стало: " + str(bottom_counter))
+
+            if bottom_counter == 2:
+              logging.debug("bottom_counte == 2, это значит, что мы уже опускались вниз один раз, сейчас мы опустились второй, следовательно, необходимо просто распознать последнюю часть экрана и выйти, т.к. ЛОЖЬ == (bottom_counter < 2).")
+              continue
+            
+            logging.debug("Следующим шагом заходим в цикл, в котором будем подниматься постепенно вверх, пока не найдем нижнюю область, запомненную ранее")
+              
+            while True:
+              logging.debug("Возвращаемся назад щелчком на стрелку верхнего скролла")
+              click(1005, 340)
+              time.sleep(0.1)
+              logging.debug("Поспали 0.1")
+              
+              img_gray = pil2gray(ImageGrab.grab((16, 351, 1014, 673)))
+              
+              res = cv.CreateImage((img_gray.width - tpl_gray.width + 1, img_gray.height - tpl_gray.height + 1), cv.IPL_DEPTH_32F, 1)
+              cv.MatchTemplate(img_gray, tpl_gray, res, cv.CV_TM_SQDIFF)
+              
+              (minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
+              
+              previous_roi = cv.GetImageROI(img_gray)
+              cv.SetImageROI(img_gray, (minloc[0], minloc[1], tpl_gray.width, tpl_gray.height))
+
+              #img_gray_copy = cv.CreateImage((cv.GetImageROI(img_gray)[2] - cv.GetImageROI(img_gray)[0], cv.GetImageROI(img_gray)[3] - cv.GetImageROI(img_gray)[1]), cv.IPL_DEPTH_8U, 1)
+              #pdb.set_trace()
+              #cv.Copy(img_gray, img_gray_copy)
+              norm = -1
+              norm = cv.Norm( img_gray, tpl_gray );
+
+              cv.SetImageROI(img_gray, previous_roi)
+              
+              ## 2
+              #cv.Rectangle(img_gray, 
+              #  (minloc[0], minloc[1]),
+              #  (minloc[0] + tpl_gray.width, minloc[1] + tpl_gray.height),
+              #cv.Scalar(0, 1, 0, 0))
+              #
+              #
+              #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+              #cv.ShowImage('image', img_gray)
+              #
+              #cv.NamedWindow('tpl', cv.CV_WINDOW_AUTOSIZE)
+              #cv.ShowImage('tpl', tpl_gray)
+              #
+              #cv.WaitKey(0)
+              #
+              #cv.DestroyWindow('image')
+              #cv.DestroyWindow('tpl')
+              ## 2
+
+              #print "minval: " + str(minval)
+              #print "norm: " + str(norm)
+              
+              if (norm == 0):
+                logging.debug("Нашли интересующую область, запомненную ранее")
+                continue_iteration = True
+                break
+              
+            if continue_iteration:
+              logging.debug("Переходим к следующей итерации цикла по полоскам")
               continue
               
         logging.debug("Осуществляем возврат из метода")
