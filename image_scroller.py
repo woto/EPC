@@ -7,6 +7,8 @@ import win32api, win32gui, win32con
 import time, math, random, re, pdb
 import pyscreenshot as ImageGrab
 import cv2.cv as cv
+import win32com.client as comclt
+
 
 class WindowMgr:
     """Encapsulates some calls to the winapi for window management"""
@@ -34,7 +36,9 @@ class WindowMgr:
 w = WindowMgr()
 w.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG.*")
 w.set_foreground()
-time.sleep(0.5)
+time.sleep(1)
+
+wsh = comclt.Dispatch("WScript.Shell")
 
 def find_match(file_name, template_array, roi, minimal, debug):
   if roi and len(roi) != 4:
@@ -59,6 +63,7 @@ def find_match(file_name, template_array, roi, minimal, debug):
     if debug:
       print "minval:" + str(minval)
       print "maxval:" + str(maxval)
+      print '"' + template + '": ' + str(minloc)
       cv.Rectangle(img, 
         (minloc[0], minloc[1]),
         (minloc[0] + tpl.width, minloc[1] + tpl.height),
@@ -74,85 +79,77 @@ def find_match(file_name, template_array, roi, minimal, debug):
       cv.DestroyWindow('image')
       cv.DestroyWindow('template')
     
-    pdb.set_trace()
-    if minval < minimal:        
+    if minval < minimal:
       return (minloc[0], minloc[1])
 
 def click(x, y):  
   win32api.SetCursorPos((x,y))
   win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
   win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
-	  
-coords = find_match(False, 
-  ['images/TMC Part Number Translation/3.png', 'images/TMC Part Number Translation/4.png'],
-  False, 0, False)
 
-print "coords: " + str(coords)
-x = coords[0]
-y = coords[1]
+def goto_main_menu():
+  # Нажимаем ESC пока не выйдем в главное меню
+  while True:
+    wsh.SendKeys("{ESC}")
+    time.sleep(0.1)
+  
+    return find_match(False, 
+      ['images/TMC Part Number Translation/3.png', 'images/TMC Part Number Translation/4.png'],
+      False, 100, False)
 
-while True:
-  click(x, y)
-  # Проверяем наличие кнопки search
-  coords = find_match(False, ['images/Search.png'], False, 1, True)
 
-  print "Search.png coords: " + str(coords)
+def search_vin_in_current_area(vin):
+  
+  (x, y) = goto_main_menu()
 
+  # Ждем появления Search.png
+  while True:
+    click(x, y)
+    time.sleep(0.1)
+  
+    coords = find_match(False, ['images/Search.png'], False, 100, False)
+  
+    if coords:
+      break
+  
+  # Магия с раскладкой
+  win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
+  time.sleep(1)
+  wsh.SendKeys(vin)
+  wsh.SendKeys("{ENTER}")
+  coords = find_match(None, ['images/Appropriate vehicle cannot be found.png'], None, 100, False)
   if coords:
-    break
+   raise Exception("found")
+  else:
+    time.sleep(3)
 
-import win32com.client as comclt
-wsh= comclt.Dispatch("WScript.Shell")
-#1wsh.AppActivate("Notepad") # select another application
+for i in range(4):
 
-#lang = win32api.GetKeyboardLayoutList()
-#stime.sleep(1)
-#win32api.LoadKeyboardLayout(str(lang[0]),1)
-#time.sleep(1)
-#win32api.LoadKeyboardLayout(str(lang[1]),1)
-#time.sleep(1)
+  goto_main_menu()
+  
+  (x, y) = find_match(None, 
+	['images/Area Language setup/1.png', 'images/Area Language setup/2.png', 'images/Area Language setup/3.png'], 
+    None, 100, False)
+  
+  click(x, y)
+  
+  while True:
+    time.sleep(0.1)
+    coords = find_match(False, ['images/Setup the necessary items.png'], False, 100, False)
+    if coords:
+      break
+  
+  for j in range(4):
+    time.sleep(0.1)
+    wsh.SendKeys("{UP}")
+  
+  for j in range(i):
+    time.sleep(0.1)
+    wsh.SendKeys("{DOWN}")
+  
+  time.sleep(0.1)
+  wsh.SendKeys("{ENTER}")
+  time.sleep(0.1)
+  wsh.SendKeys("{F8}")
 
-#win32api.SendMessage(0xFFFF, 0x50)
-#win32api.keybd_event(0x46, 0, )
-win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
-wsh.SendKeys("JTDDY38T210046327")
-wsh.SendKeys("{ENTER}")
-
-
-
-im=ImageGrab.grab()
-ImageGrab.grab_to_file('im.png')
-img = cv.LoadImage('im.png', cv.CV_LOAD_IMAGE_COLOR)
-
-
-tpl = cv.LoadImage('images/Appropriate vehicle cannot be found.png', cv.CV_LOAD_IMAGE_COLOR)
-
-
-res = cv.CreateImage((img.width - tpl.width + 1, img.height - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
-cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
-(minval, maxval, minloc, maxloc) = cv.MinMaxLoc( res )
-print minval
-print "\r\n"
-print maxval
-
-cv.Rectangle(img,
-  (minloc[0], minloc[1]),
-  (minloc[0] + tpl.width, minloc[1] + tpl.height),
-  cv.Scalar(0, 1, 0, 0))
-
-cv.NamedWindow("reference", cv.CV_WINDOW_AUTOSIZE)
-cv.NamedWindow("template", cv.CV_WINDOW_AUTOSIZE)
-cv.ShowImage("reference", img)
-cv.ShowImage("template", tpl)
-cv.WaitKey(0)
-
-#time.sleep(0.5)
-#wsh.SendKeys("{F10}")
-#time.sleep(0.5)
-#wsh.SendKeys("{F6}")
-
-#win32api.keybd_event(0x46, 0, )
-
-
-# to file
-#ImageGrab.grab_to_file('im.png')
+  search_vin_in_current_area("JTEHH20V410084243")
