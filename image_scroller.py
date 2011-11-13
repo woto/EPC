@@ -1,49 +1,22 @@
 #coding=UTF-8
 import sys
-sys.path.append('/usr/local/lib/python2.7/site-packages/')
 sys.path.append("C:\\opencv\\build\\python\\2.7")
 
-import win32api, win32gui, win32con
-import time, math, random, re, pdb
+import win32api, win32con
+import time, math, random, pdb
 import pyscreenshot as ImageGrab
 import cv2.cv as cv
 import win32com.client as comclt
 
-
-class WindowMgr:
-    """Encapsulates some calls to the winapi for window management"""
-    def __init__ (self):
-        """Constructor"""
-        self._handle = None
-
-    def find_window(self, class_name, window_name = None):
-        """find a window by its class_name"""
-        self._handle = win32gui.FindWindow(class_name, window_name)
-
-    def _window_enum_callback(self, hwnd, wildcard):
-        '''Pass to win32gui.EnumWindows() to check all the opened windows'''
-        if re.match(wildcard, str(win32gui.GetWindowText(hwnd))) != None:
-            self._handle = hwnd
-
-    def find_window_wildcard(self, wildcard):
-        self._handle = None
-        win32gui.EnumWindows(self._window_enum_callback, wildcard)
-
-    def set_foreground(self):
-        """put the window in the foreground"""
-        win32gui.SetForegroundWindow(self._handle)
-
-w = WindowMgr()
-w.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG.*")
-w.set_foreground()
-time.sleep(1)
+from window_mgr import WindowMgr
 
 wsh = comclt.Dispatch("WScript.Shell")
+wmgr = WindowMgr()
+wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG.*")
+wmgr.set_foreground()
 
 def find_match(file_name, template_array, roi, minimal, debug):
-  if roi and len(roi) != 4:
-    raise Exception("Bad tuple - ROI")
-  
+
   if not file_name:
     file_name = 'img.png'
     if roi:
@@ -133,16 +106,19 @@ for i in range(4):
   
   click(x, y)
   
+  # ∆дем по€вление окна настроек Area/Language
   while True:
     time.sleep(0.1)
     coords = find_match(False, ['images/Setup the necessary items.png'], False, 100, False)
     if coords:
       break
   
+  # ѕоднимаемс€ безусловно на самый верх
   for j in range(4):
     time.sleep(0.1)
     wsh.SendKeys("{UP}")
   
+  # ќпускаемс€ на нужное количество в соответствии с итерацией
   for j in range(i):
     time.sleep(0.1)
     wsh.SendKeys("{DOWN}")
