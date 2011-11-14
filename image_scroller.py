@@ -87,14 +87,14 @@ def search_vin_in_current_area(vin):
   
   # Магия с раскладкой
   win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
-  time.sleep(1)
+  time.sleep(0.1)
   wsh.SendKeys(vin)
   wsh.SendKeys("{ENTER}")
   coords = find_match(None, ['images/Appropriate vehicle cannot be found.png'], None, 100, False)
   if coords:
    raise Exception("found")
   else:
-    time.sleep(3)
+    time.sleep(1)
 
 for i in range(4):
 
@@ -128,4 +128,6 @@ for i in range(4):
   time.sleep(0.1)
   wsh.SendKeys("{F8}")
 
-  search_vin_in_current_area("JTEHH20V410084243")
+  time.sleep(0.1)
+
+  search_vin_in_current_area("JTDKB20U363182933")
