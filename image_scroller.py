@@ -68,7 +68,7 @@ def goto_main_menu():
     time.sleep(0.1)
   
     coords = find_match(False, 
-      ['images/TMC Part Number Translation/3.png', 'images/TMC Part Number Translation/4.png'],
+      ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'],
       False, 100, False)
 
     if coords:
@@ -121,7 +121,7 @@ for id, vin in enumerate(vins):
     goto_main_menu()
     
     (x, y) = find_match(None, 
-  	['images/Area Language setup/1.png', 'images/Area Language setup/2.png', 'images/Area Language setup/3.png'], 
+  	['images/Area Language setup/1.png', 'images/Area Language setup/2.png'], 
       None, 100, False)
     
     click(x, y)
