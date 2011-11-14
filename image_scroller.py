@@ -66,9 +66,12 @@ def goto_main_menu():
     wsh.SendKeys("{ESC}")
     time.sleep(0.1)
   
-    return find_match(False, 
+    coords = find_match(False, 
       ['images/TMC Part Number Translation/3.png', 'images/TMC Part Number Translation/4.png'],
       False, 100, False)
+
+    if coords:
+      return coords
 
 
 def search_vin_in_current_area(vin):
