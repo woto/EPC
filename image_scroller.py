@@ -37,6 +37,7 @@ def find_match(file_name, template_array, roi, minimal, debug):
       print "minval:" + str(minval)
       print "maxval:" + str(maxval)
       print '"' + template + '": ' + str(minloc)
+      print ""
       cv.Rectangle(img, 
         (minloc[0], minloc[1]),
         (minloc[0] + tpl.width, minloc[1] + tpl.height),
@@ -74,7 +75,7 @@ def goto_main_menu():
       return coords
 
 
-def search_vin_in_current_area(vin):
+def search_vin_in_current_area(vin, item):
   
   (x, y) = goto_main_menu()
 
@@ -92,45 +93,61 @@ def search_vin_in_current_area(vin):
   win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
   time.sleep(0.1)
   wsh.SendKeys(vin)
+  time.sleep(0.1)
   wsh.SendKeys("{ENTER}")
-  coords = find_match(None, ['images/Appropriate vehicle cannot be found.png'], None, 100, False)
-  if coords:
-   raise Exception("found")
-  else:
-    time.sleep(1)
 
-for i in range(4):
-
-  goto_main_menu()
-  
-  (x, y) = find_match(None, 
-	['images/Area Language setup/1.png', 'images/Area Language setup/2.png', 'images/Area Language setup/3.png'], 
-    None, 100, False)
-  
-  click(x, y)
-  
-  # Ждем появление окна настроек Area/Language
+  # Ждем пока пропадет фокус с кнопки Search
   while True:
     time.sleep(0.1)
-    coords = find_match(False, ['images/Setup the necessary items.png'], False, 100, False)
-    if coords:
+    coords = find_match(None, ['images/Search (foucsed).png'], None, 100, False)
+    if not coords:
       break
   
-  # Поднимаемся безусловно на самый верх
-  for j in range(4):
-    time.sleep(0.1)
-    wsh.SendKeys("{UP}")
-  
-  # Опускаемся на нужное количество в соответствии с итерацией
-  for j in range(i):
-    time.sleep(0.1)
-    wsh.SendKeys("{DOWN}")
-  
-  time.sleep(0.1)
-  wsh.SendKeys("{ENTER}")
-  time.sleep(0.1)
-  wsh.SendKeys("{F8}")
+  for i in range(3):
+    time.sleep(0.3)
+    coords = find_match(None, ['images/Appropriate vehicle cannot be found.png'], None, 300, False)
+    if coords:
+      return
 
-  time.sleep(0.1)
+  print "Found " + vin + " in " + str(item) + " Area/Language item"
 
-  search_vin_in_current_area("JTDKB20U363182933")
+vins = ["JTDKB20U363182933", "JTDBT123730262051", "JTDDR32T930145803", "JTDDY38T210046327", "JTDDR32T2Y0050281", "JTEHH20U410064381", "JTDDY32T620056482",
+  "jtddr32t730150241", "JTEHH20V436076031", "JTDDR32T010088050", "JTDDY38T120056235", "JTDDR32T2Y0050281"]
+
+for id, vin in enumerate(vins):
+
+  for i in range(4):
+  
+    goto_main_menu()
+    
+    (x, y) = find_match(None, 
+  	['images/Area Language setup/1.png', 'images/Area Language setup/2.png', 'images/Area Language setup/3.png'], 
+      None, 100, False)
+    
+    click(x, y)
+    
+    # Ждем появление окна настроек Area/Language
+    while True:
+      time.sleep(0.1)
+      coords = find_match(False, ['images/Setup the necessary items.png'], False, 100, False)
+      if coords:
+        break
+    
+    # Поднимаемся безусловно на самый верх
+    for j in range(4):
+      time.sleep(0.1)
+      wsh.SendKeys("{UP}")
+    
+    # Опускаемся на нужное количество в соответствии с итерацией
+    for j in range(i):
+      time.sleep(0.1)
+      wsh.SendKeys("{DOWN}")
+    
+    time.sleep(0.1)
+    wsh.SendKeys("{ENTER}")
+    time.sleep(0.1)
+    wsh.SendKeys("{F8}")
+  
+    time.sleep(0.1)
+  
+    search_vin_in_current_area(vin, i)
