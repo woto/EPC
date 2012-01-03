@@ -132,28 +132,25 @@ def make_json_app(import_name, **kwargs):
 app = make_json_app(__name__)
 wsh = comclt.Dispatch("WScript.Shell")
 
-@app.route('/ts/<catalog_number>/')
+@app.route('/json/ts/<catalog_number>/')
 def toyota_substitution(catalog_number):
   wmgr = WindowMgr()
   wmgr.minimize_all_windows()
   check_or_start_toyota_epc()
   return post_process_allow_origin(jsonify(time=str(catalog_number)))
 
-@app.route('/vin/<vin_code>/')
+@app.route('/json/vin/<vin_code>/')
 def vin(vin_code):
   
   return post_process_allow_origin(jsonify(time=str(vin_code)))
   
-@app.route('/info/<catalog_number>/', defaults={'manufacturer': None})
-@app.route('/info/<catalog_number>/<manufacturer>')
+@app.route('/json/info/<catalog_number>/', defaults={'manufacturer': None})
+@app.route('/json/info/<catalog_number>/<manufacturer>')
 def info(catalog_number, manufacturer):
 
   # На случай с FRI.TECH. когда Rails почему-то делает не .../catalog_number/manufacturer, a .../catalog_number?manufacturer=manufacturer
   if (manufacturer == None):
-    manufacturer = request.args.get('manufacturer', '')
-
-  wmgr = WindowMgr()
-  wmgr.minimize_all_windows()    
+    manufacturer = request.args.get('manufacturer', '')  
   
   logging.debug('Проверяем наличие закешированной картинки') 
   if os.path.exists("./static/" + catalog_number + ".png"):
@@ -162,6 +159,9 @@ def info(catalog_number, manufacturer):
     
   lock = FileLock("./application")
   with lock:
+  
+    wmgr = WindowMgr()
+    wmgr.minimize_all_windows()    
 
     if manufacturer == "TOYOTA":
       main_wnd = None
@@ -268,7 +268,7 @@ def info(catalog_number, manufacturer):
           logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен, ищем его') 
           wmgr.find_window_wildcard(".*TECDOC(.*)")
           
-          logging.debug('Спим ' + str(pow(i/2, 1.7)) + 'с. тем как сделать активным TECDOC')
+          logging.debug('Спим ' + str(pow(i/2, 1.7)) + 'с. перед тем как сделать активным TECDOC')
           time.sleep(pow(i/2, 1.7))
           wmgr.set_foreground(True, True, True)
 
