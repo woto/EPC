@@ -119,7 +119,7 @@ def check_or_start_tectdoc():
    
 def goto_main_menu_toyota_epc():
   logging.debug("goto_main_menu_toyota_epc")
-  i = 0
+  sleep = 0
   
   while True:
     try:
@@ -137,15 +137,17 @@ def goto_main_menu_toyota_epc():
         logging.debug('Отправили в него Esc')
       
       logging.debug('Ищем кнопку TMC...')
-      main_wnd = find_match(None, ['images/Toyota EPC/TMC Part Number Translation/1.png', 'images/Toyota EPC/TMC Part Number Translation/2.png'], (11, 127, 511, 155), 100, False)
+      main_wnd = find_match(None, ['images/Toyota EPC/TMC Part Number Translation/1.png', 'images/Toyota EPC/TMC Part Number Translation/2.png'], (178, 142, 184, 151), 100, False)
       
       if main_wnd:
         logging.debug('Нашли кнопку TMC Part Number Translation, далее считается, что окно находится на самом верху и мы находимся в главном меню')
         break
-    except:
-      i = i + 0.1
-      logging.debug("Спим " + str(i) + " с. перед следущей итерацией goto_main_menu_toyota_epc")
-      time.sleep(i)
+    except Exception, exc:
+      print exc
+      sleep = sleep + 0.1
+      logging.debug("Exception Спим " + str(sleep) + " с. перед следущей итерацией goto_main_menu_toyota_epc")
+      time.sleep(sleep)
+      
 
       
       
@@ -180,7 +182,7 @@ def in_each_region(some_method):
         logging.debug('Нашли окно TOYOTA...Area, сделали его активным')
         
         logging.debug('Ищем Setup the necessary items')   
-        coords = find_match(False, ['images/Toyota EPC/Setup the necessary items.png'], (0, 342, 657, 368), 100, False)
+        coords = find_match(False, ['images/Toyota EPC/Setup the necessary items.png'], (182, 350, 190, 361), 100, False)
         if coords:
           logging.debug('Теперь мы точно уверены, что окно выбора регионов открыто, т.к. нашли Setup the necessary items')
           break
@@ -188,7 +190,7 @@ def in_each_region(some_method):
           raise
       except:
         sleep = sleep + 0.1
-        logging.debug("Где-то вылетел exception, будем повторять. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна регионов с Setup the necessary items")
+        logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна регионов с Setup the necessary items")
         time.sleep(sleep)
 
     break_upper = False
@@ -213,17 +215,28 @@ def in_each_region(some_method):
     logging.debug("На данном этапе мы точно знаем, что нашли регион, в котором еще не были " + area + ", отмечаем его")
     areas[area]['searched'] = True
 
-    img = ImageGrab.grab((158, 135, 159, 252))
-    img.save('1.png')
-    
-    img = img.convert("RGBA")
-    pixdata = img.load()
 
-    click(coords[0] + 62, coords[1] + 135)    
-    if(pixdata[0, areas[area]['blue_point_y']] == (10, 36, 106, 255)):
-      print 'good!'
+    sleep = 0
+    while True:
 
-    time.sleep(0.1)  
+      time.sleep(0.1) # Обязательно
+      click(coords[0] + 62, coords[1] + 135)
+      
+      img = ImageGrab.grab((158, 135, 159, 252))
+      
+      img = img.convert("RGBA")
+      pixdata = img.load()
+
+      if(pixdata[0, areas[area]['blue_point_y']] == (10, 36, 106, 255)):
+        print 'good!'
+        break
+      
+      sleep = sleep + 0.1
+      logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
+      time.sleep(sleep)
+
+    logging.debug('wtf')
+    time.sleep(0.5)  
     
     wsh.SendKeys("{F8}")
 
