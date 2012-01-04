@@ -6,3 +6,4 @@
 .DS_Store
 site/static/*
 site/img.png
+*.db

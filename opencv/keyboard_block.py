@@ -1,21 +1,16 @@
-import pythoncom, pyHook 
- 
-def OnKeyboardEvent(event):
-  # block only the letter A, lower and uppercase
-  return False
-  
-def OnMouseEvent(event):
-  return False
-    
-# create a hook manager
+import pyHook
+import pythoncom
+import thread
+import threading
+import time
+
+def onclick(event):
+    print event.Position
+    return False
+
+#def run_thread (threadname, count, sleeptime):
 hm = pyHook.HookManager()
-# watch for all keyboard events
-hm.KeyDown = OnKeyboardEvent
-# set the hook
-hm.HookKeyboard()
-# watch for all mouse events
-hm.MouseAll = OnMouseEvent
-# set the hook
+hm.SubscribeMouseAllButtonsDown(onclick)
 hm.HookMouse()
-# wait forever
 pythoncom.PumpMessages()
+hm.UnhookMouse()

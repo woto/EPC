@@ -19,7 +19,7 @@ class WindowMgr:
         '''Pass to win32gui.EnumWindows() to check all the opened windows'''
         result = re.match(wildcard, str(win32gui.GetWindowText(hwnd)))
         if result != None:
-            #print str(win32gui.GetWindowText(hwnd))
+            #str(win32gui.GetWindowText(hwnd))
             self._handle.append(hwnd)
             self._title.append(result.group(1))
 
@@ -31,7 +31,7 @@ class WindowMgr:
     def minimize_all_windows(self):
         handle = win32gui.FindWindow("Shell_TrayWnd", None)
         win32gui.SendMessage(handle, 0x111, 419, 0)
-        
+
     def set_foreground(self, maximize, topmost, dirty_bitch, element=0):
         #http://msdn.microsoft.com/en-us/library/windows/desktop/ms633548(v=vs.85).aspx        
         #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
