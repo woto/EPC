@@ -1,9 +1,8 @@
 *.swp
 *.swo
-*.lock
 *.log
 *.pyc
 .DS_Store
+*.db
 site/static/*
 site/img.png
-*.db

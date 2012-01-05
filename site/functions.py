@@ -2,6 +2,9 @@ import pyscreenshot as ImageGrab
 import win32api, win32con
 import cv
 
+import cv
+import pyscreenshot as ImageGrab
+
 def find_match(file_name, template_array, roi, minimal, debug):
 
   if not file_name:
@@ -12,8 +15,11 @@ def find_match(file_name, template_array, roi, minimal, debug):
       im = ImageGrab.grab()
     im.save(file_name)
 
+  img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+  cv.SetData(img, im.tostring(), im.size[0]*3)
+  cv.CvtColor(img, img, cv.CV_RGB2BGR)      
+  
   for id, template in enumerate(template_array):
-    img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
     tpl = cv.LoadImage(template, cv.CV_LOAD_IMAGE_COLOR)
   
     res = cv.CreateImage((img.width - tpl.width + 1, img.height - tpl.height + 1), cv.IPL_DEPTH_32F, 1)

@@ -1,7 +1,6 @@
 #coding=UTF-8
 
 import json
-from lockfile import FileLock
 from functools import partial
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import default_exceptions, HTTPException
@@ -44,7 +43,8 @@ def make_json_app(import_name, **kwargs):
 
     return app
     
-    
+   
+   
                     
 def search_vin_in_current_area(vin):
   logging.debug('search_vin_in_current_area')
@@ -80,13 +80,6 @@ def search_vin_in_current_area(vin):
 
   print "Found " + vin
 
-  
-
-if os.path.exists('./application.lock'):
-  shutil.rmtree('./application.lock')
-
-  
-  
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()
@@ -100,6 +93,7 @@ def check_or_start_toyota_epc():
     os.chdir(origWD)
   logging.debug("Вышли из метода проверки запущенности Toyota EPC. Далее считается, что Toyota EPC запущен")
 
+  
   
   
 def check_or_start_tectdoc():
@@ -116,6 +110,7 @@ def check_or_start_tectdoc():
   logging.debug("Вышли из метода проверки запущенности Tecdoc. Далее считается, что Tecdoc запущен")
    
 
+   
    
 def goto_main_menu_toyota_epc():
   logging.debug("goto_main_menu_toyota_epc")
@@ -152,7 +147,8 @@ def goto_main_menu_toyota_epc():
       time.sleep(sleep)
       
 
-      
+  
+  
 def in_each_region(some_method):
   logging.debug('in_each_region')
   
@@ -180,7 +176,7 @@ def in_each_region(some_method):
         logging.debug('Ищем любое окно TOYOTA...Area')
         time.sleep(sleep) # Обязательно
         wmgr = WindowMgr()
-        wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*)Area.*")
+        wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area).*")
         wmgr.set_foreground(False, False, False)
         logging.debug('Нашли окно TOYOTA...Area, сделали его активным')
         
@@ -236,9 +232,10 @@ def toyota_substitution(catalog_number):
   
   return post_process_allow_origin(jsonify(time=str(catalog_number)))
 
+  
 
   
-@app.route('/json/t_vin/<vin_code>/')
+@app.route('/json/vin/<vin_code>/')
 def vin(vin_code):
   logging.debug('vin')
   
@@ -250,6 +247,7 @@ def vin(vin_code):
   in_each_region(search_vin_in_current_area)  
   
   return post_process_allow_origin(jsonify(time=str(vin_code)))
+  
   
   
   
@@ -267,108 +265,106 @@ def info(catalog_number, manufacturer):
     logging.debug('Нашли и показали') 
     return post_process_allow_origin(jsonify(time=str(catalog_number))) 
     
-  lock = FileLock("./application")
-  with lock:
+  wmgr = WindowMgr()
+  wmgr.minimize_all_windows()    
+
+  if manufacturer == "TOYOTA":
   
-    wmgr = WindowMgr()
-    wmgr.minimize_all_windows()    
-
-    if manufacturer == "TOYOTA":
+    check_or_start_toyota_epc()
     
-      check_or_start_toyota_epc()
-      
-      in_each_region(search_vin_in_current_area)
-          
-      return post_process_allow_origin(jsonify(time=str(catalog_number)))
-          
-    else:
-      
-      check_or_start_tectdoc()
-      i = 0        
+    in_each_region(search_vin_in_current_area)
+        
+    return post_process_allow_origin(jsonify(time=str(catalog_number)))
+        
+  else:
+    
+    check_or_start_tectdoc()
+    i = 0        
 
-      while True:
-        try:
-          logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен, ищем его') 
-          wmgr.find_window_wildcard(".*TECDOC(.*)")
-          
-          logging.debug('Спим ' + str(i) + 'с. перед тем как сделать активным TECDOC')
-          time.sleep(i)
-          wmgr.set_foreground(True, True, True)
+    while True:
+      try:
+        logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен, ищем его') 
+        wmgr.find_window_wildcard(".*TECDOC(.*)")
+        
+        logging.debug('Спим ' + str(i) + 'с. перед тем как сделать активным TECDOC')
+        time.sleep(i)
+        wmgr.set_foreground(True, True, True)
 
-          logging.debug('Спим ' + str(i) + 'с. перед отправкой в него ESC')
-          time.sleep(i)
-          logging.debug('Нажимем ESC')
-          wsh.SendKeys("{ESC}")
+        logging.debug('Спим ' + str(i) + 'с. перед отправкой в него ESC')
+        time.sleep(i)
+        logging.debug('Нажимем ESC')
+        wsh.SendKeys("{ESC}")
+        time.sleep(0.1) # Обязательно!
+        
+        logging.debug('Ищем поставленную галочку на "Любой номер"')
+        coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 10, False)
+        
+        if coords:
+          logging.debug('Нашли поставленную галочку на "Любой номер"') 
+
+          logging.debug('Спим ' + str(i) + 'с. перед перед снятием галочки с "Любой номер"')
+          time.sleep(i) 
+          click(757, 113)
           time.sleep(0.1) # Обязательно!
           
-          logging.debug('Ищем поставленную галочку на "Любой номер"')
-          coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 10, False)
-          
+          logging.debug('Спим ' + str(i) + 'с. перед проверкой, что мы действительно сняли галочку с "Любой номер"')
+          time.sleep(i)
+          coords = find_match(None, ['images/Tecdoc/Check Box - Unchecked.png'], (749, 104, 767, 121), 10, False)
           if coords:
-            logging.debug('Нашли поставленную галочку на "Любой номер"') 
-
-            logging.debug('Спим ' + str(i) + 'с. перед перед снятием галочки с "Любой номер"')
-            time.sleep(i) 
-            click(757, 113)
-            time.sleep(0.1) # Обязательно!
+            logging.debug('Убедились, что галочка "Любой номер снята", спим перед нажатием на кнопку поиска запчастей (Увеличительное стекло)') 
+            click(209, 43)
             
-            logging.debug('Спим ' + str(i) + 'с. перед проверкой, что мы действительно сняли галочку с "Любой номер"')
-            time.sleep(i)
-            coords = find_match(None, ['images/Tecdoc/Check Box - Unchecked.png'], (749, 104, 767, 121), 10, False)
-            if coords:
-              logging.debug('Убедились, что галочка "Любой номер снята", спим перед нажатием на кнопку поиска запчастей (Увеличительное стекло)') 
-              click(209, 43)
+            logging.debug('Спим ' + str(i) + 'с. перед вводом каталожного номера')
+            logging.debug('Вводим каталожный номер.')
+            wsh.SendKeys(catalog_number)
+            
+            logging.debug('Спим ' + str(i) + 'с. перед нажатием Enter')
+            wsh.SendKeys("{ENTER}")
+            
+            for i in range(50):
+              logging.debug('Ищем ' + str(i+1) + ' раз наличие, либо отсутсвтие информации по запчасти') 
               
-              logging.debug('Спим ' + str(i) + 'с. перед вводом каталожного номера')
-              logging.debug('Вводим каталожный номер.')
-              wsh.SendKeys(catalog_number)
-              
-              logging.debug('Спим ' + str(i) + 'с. перед нажатием Enter')
-              wsh.SendKeys("{ENTER}")
-              
-              for i in range(50):
-                logging.debug('Ищем ' + str(i+1) + ' раз наличие, либо отсутсвтие информации по запчасти') 
-                
-                logging.debug('Ищем окно, сообщающее, что каталожный номер не найден') 
-                coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
-                if coords:
-                  while True:
-                    wsh.SendKeys("{ESC}")
-                    coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)   
-                    if not coords: 
-                      return post_process_allow_origin(jsonify(time="Ничего не нашли"))
-                    time.sleep(0.1)
-                logging.debug('Ищем что-то там :), сообщающее, что каталожный номер найден') 
-                coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
-                if coords:
-                  logging.debug('Нашли что-то там :)') 
-                  logging.debug('Граббим экран') 
-                  im = ImageGrab.grab((207, 204, 1128, 890))
-                  logging.debug('Сохраняем изображением в папке') 
-                  im.save("./static/" + catalog_number + ".png")
-                  logging.debug('Возвращаем результат') 
-                  return post_process_allow_origin(jsonify(time=str(catalog_number)))        
+              logging.debug('Ищем окно, сообщающее, что каталожный номер не найден') 
+              coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
+              if coords:
+                while True:
+                  wsh.SendKeys("{ESC}")
+                  coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)   
+                  if not coords: 
+                    return post_process_allow_origin(jsonify(time="Ничего не нашли"))
+                  time.sleep(0.1)
+              logging.debug('Ищем что-то там :), сообщающее, что каталожный номер найден') 
+              coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
+              if coords:
+                logging.debug('Нашли что-то там :)') 
+                logging.debug('Граббим экран') 
+                im = ImageGrab.grab((207, 204, 1128, 890))
+                logging.debug('Сохраняем изображением в папке') 
+                im.save("./static/" + catalog_number + ".png")
+                logging.debug('Возвращаем результат') 
+                return post_process_allow_origin(jsonify(time=str(catalog_number)))        
 
-                #TODO МУХЛЕЖ!
-                time.sleep(0.1)
-                
-              logging.debug('По видимому столкнулись с проблематичной деталью, делаем возврат')
               #TODO МУХЛЕЖ!
-              return post_process_allow_origin(jsonify(time=str(catalog_number)))
-            else:
-              logging.debug('Не смогли убедиться, что снята галочка с "Любой номер"')
-              raise
+              time.sleep(0.1)
+              
+            logging.debug('По видимому столкнулись с проблематичной деталью, делаем возврат')
+            #TODO МУХЛЕЖ!
+            return post_process_allow_origin(jsonify(time=str(catalog_number)))
           else:
-            logging.debug('Не нашли поставленную галочку на "Любой номер"')
+            logging.debug('Не смогли убедиться, что снята галочка с "Любой номер"')
             raise
-        except:
-          print 'wertswg'
+        else:
+          logging.debug('Не нашли поставленную галочку на "Любой номер"')
+          raise
+      except:
+        print 'wertswg'
 
-        i = i + 0.3
+      i = i + 0.3
         
   logging.debug('Безусловный возврат результата.') 
   return post_process_allow_origin(jsonify(time=time.time()))
 
+  
   
   
 @app.route('/')
@@ -377,6 +373,7 @@ def hello_world():
   response = jsonify(one='1', two='2')
   return post_process_allow_origin(response)
 
+  
   
   
 def post_process_allow_origin(response):
@@ -388,6 +385,7 @@ def post_process_allow_origin(response):
   
   return response
 
+  
   
   
 if __name__ == '__main__':

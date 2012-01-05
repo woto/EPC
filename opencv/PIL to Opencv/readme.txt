@@ -1,0 +1,1 @@
+http://stackoverflow.com/questions/1650568/how-do-i-create-an-opencv-image-from-a-pil-image
