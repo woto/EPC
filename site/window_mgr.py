@@ -68,25 +68,19 @@ class WindowMgr:
         #    win32gui.SetFocus(self._handle[element])
 
         else:
+            print 'start ' + str(self._handle[element]) + ' ' + self._title[element]
+            
             """
             Для Toyota EPC
             """
-            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
-            win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 0, 0, 0, win32con.SWP_NOSIZE)
-            
-            #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
-            #win32gui.SetFocus(self._handle[element])
-
-            #win32gui.BringWindowToTop(self._handle[element])
-            #win32gui.SetActiveWindow(self._handle[element])
+            win32gui.BringWindowToTop(self._handle[element])
+            win32gui.SetActiveWindow(self._handle[element])
 
 
-            #win32gui.SetForegroundWindow(self._handle[element])
-            #win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 0, 0, 0, win32con.SWP_NOSIZE)
-            #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
-            #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
-            #win32gui.SetFocus(self._handle[element])
-            
-            #win32gui.BringWindowToTop(self._handle[element])
-            #win32gui.SetActiveWindow(self._handle[element])            
             win32gui.SetForegroundWindow(self._handle[element])
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
+            #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)           
+            win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 0, 0, 0, win32con.SWP_NOSIZE)            
+            win32gui.SetFocus(self._handle[element])            
+            win32gui.SetForegroundWindow(self._handle[element])
+            print 'end'

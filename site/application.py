@@ -119,7 +119,7 @@ def check_or_start_tectdoc():
    
 def goto_main_menu_toyota_epc():
   logging.debug("goto_main_menu_toyota_epc")
-  sleep = 0
+  sleep = 0.1
   
   while True:
     try:
@@ -132,7 +132,7 @@ def goto_main_menu_toyota_epc():
         logging.debug('Работаем с окном ' + wmgr._title[i] + " внутри цикла перебора всех окон Toyota...")
         wmgr.set_foreground(False, False, False, i)
         logging.debug('Сделали его активным')
-        #time.sleep(0.1)
+        time.sleep(sleep) # Обязательно
         wsh.SendKeys("{ESC}")
         logging.debug('Отправили в него Esc')
       
@@ -142,28 +142,31 @@ def goto_main_menu_toyota_epc():
       if main_wnd:
         logging.debug('Нашли кнопку TMC Part Number Translation, далее считается, что окно находится на самом верху и мы находимся в главном меню')
         break
+      else: 
+        logging.debug('Не нашли кнопку TMC')
+        raise 
     except Exception, exc:
       print exc
       sleep = sleep + 0.1
-      logging.debug("Exception Спим " + str(sleep) + " с. перед следущей итерацией goto_main_menu_toyota_epc")
+      logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией goto_main_menu_toyota_epc")
       time.sleep(sleep)
       
 
-      
       
 def in_each_region(some_method):
   logging.debug('in_each_region')
   
   areas = {
-    'Europe': {'searched': False, 'coords': None, 'blue_point_y': 13}, 
-    'General': {'searched': False, 'coords': None, 'blue_point_y': 30},
-    'USA, Canada': {'searched': False, 'coords': None, 'blue_point_y': 46},
-    'Japan': {'searched': False, 'coords': None, 'blue_point_y': 65}
+    'Europe': {'searched': False, 'coords': None, 'blue_point_y': 148}, 
+    'General': {'searched': False, 'coords': None, 'blue_point_y': 165},
+    'USA, Canada': {'searched': False, 'coords': None, 'blue_point_y': 181},
+    'Japan': {'searched': False, 'coords': None, 'blue_point_y': 200}
   }
 
-  for counter in range(4):
+  for area in areas.keys():
+  
     goto_main_menu_toyota_epc()
-    logging.debug("Выполняем " + str(counter+1) + " итерацию в цикле перехода по регионам")
+    logging.debug("Находимся в цикле 'for area in areas.keys():' непосредственно после перехода в главное меню, обрабатываемый регион " + str(area))
     
     sleep = 0.1
     
@@ -187,58 +190,38 @@ def in_each_region(some_method):
           logging.debug('Теперь мы точно уверены, что окно выбора регионов открыто, т.к. нашли Setup the necessary items')
           break
         else:
+          logging.debug("Генерируем исключение. Не удалось найти 'Setup the necessary items'")
           raise
       except:
         sleep = sleep + 0.1
         logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна регионов с Setup the necessary items")
         time.sleep(sleep)
+        
 
-    break_upper = False
-      
-    for area in areas.keys():
-      logging.debug("Обрабатываемый регион " + area)
-      if areas[area]['searched']:
-        logging.debug("Пропускаем регион " + area + " т.к. в нем уже искали")
-        continue
-      else:
-        logging.debug("Регион " + area + " не помечен как searched")
-
-      logging.debug("Ищем координаты региона " + area)
-      coords = find_match(False, ['images/Toyota EPC/Areas/' + area + '.png'], (62, 135, 206, 252), 100, False)
-      if coords:
-        logging.debug("Нашли регион " + area + " возвращаемся из цикла")
-        break_upper = True
-        break
-      else:
-        logging.debug("Координаты региона " + area + " не найдены")
+    sleep = 0.1
     
-    logging.debug("На данном этапе мы точно знаем, что нашли регион, в котором еще не были " + area + ", отмечаем его")
-    areas[area]['searched'] = True
-
-
-    sleep = 0
     while True:
+      try:
+        time.sleep(sleep) # Обязательно
+        click(130, areas[area]['blue_point_y'])
+        time.sleep(sleep) # Обязательно        
+        img = ImageGrab.grab((158, 135, 159, 252))
+        img = img.convert("RGBA")
+        pixdata = img.load()
 
-      time.sleep(0.1) # Обязательно
-      click(coords[0] + 62, coords[1] + 135)
-      
-      img = ImageGrab.grab((158, 135, 159, 252))
-      
-      img = img.convert("RGBA")
-      pixdata = img.load()
+        if(pixdata[0, areas[area]['blue_point_y'] - 135] == (10, 36, 106, 255)):
+          logging.debug('Проверка синей полоски прошла успешно, регион действительно выбран')
+          break
+        else:
+          logging.debug('В процессе клика на конкретном регионе и последующей проверкой синей полоски произошла ошибка')
+          raise
+      except:
+        sleep = sleep + 0.1
+        logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
+        time.sleep(sleep)
 
-      if(pixdata[0, areas[area]['blue_point_y']] == (10, 36, 106, 255)):
-        print 'good!'
-        break
-      
-      sleep = sleep + 0.1
-      logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
-      time.sleep(sleep)
-
-    logging.debug('wtf')
-    time.sleep(0.5)  
-    
     wsh.SendKeys("{F8}")
+    logging.debug('wtf')    
 
 app = make_json_app(__name__)
 wsh = comclt.Dispatch("WScript.Shell")
@@ -260,24 +243,12 @@ def vin(vin_code):
   logging.debug('vin')
   
   check_or_start_toyota_epc()
-  goto_main_menu_toyota_epc()
+  #goto_main_menu_toyota_epc()
   
-  i=0
+  print "Searching " + str(vin)
+
+  in_each_region(search_vin_in_current_area)  
   
-  if True:
-  #while True:
-    #try:
-
-      print "Searching " + str(vin)
-
-      in_each_region(search_vin_in_current_area)  
-
-    #except:
-    #  print sys.exc_info()[0]
-    #  print '345try34'
-
-    #i = i + 0.3
-    
   return post_process_allow_origin(jsonify(time=str(vin_code)))
   
   
@@ -306,7 +277,7 @@ def info(catalog_number, manufacturer):
     
       check_or_start_toyota_epc()
       
-      goto_main_menu_toyota_epc()
+      in_each_region(search_vin_in_current_area)
           
       return post_process_allow_origin(jsonify(time=str(catalog_number)))
           
