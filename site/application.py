@@ -14,6 +14,7 @@ import ImageChops
 import win32com.client as comclt
 from functions import *
 from tecdoc_manufacturer_synonyms import *
+import pyscreenshot as ImageGrab
 
 import win32api, win32con
 import time, math, random, pdb
@@ -42,21 +43,23 @@ def make_json_app(import_name, **kwargs):
         app.error_handler_spec[None][code] = make_json_error
 
     return app
-    
    
    
-                    
+   
+
 def search_vin_in_current_area(vin):
   logging.debug('search_vin_in_current_area')
   # Ждем появления Search.png
   while True:
-    click(coords[0] + 100, coords[1] + 100)
+    click(245, 147)
     time.sleep(0.2)
   
-    coords = find_match(False, ['images/Toyota EPC/Search.png'], (400, 50, 550, 200), 100, False)
+    coords = find_match(False, ['images/Toyota EPC/Search.png'], (419, 93, 504, 124), 100, False)
   
     if coords:
       break
+    else:
+      time.sleep(0.1)
   
   # Магия с раскладкой
   win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
@@ -76,10 +79,13 @@ def search_vin_in_current_area(vin):
     time.sleep(0.2)
     coords = find_match(None, ['images/Toyota EPC/Appropriate vehicle cannot be found.png'], None, 300, False)
     if coords:
-      return
+      return False
 
-  print "Found " + vin
-
+  return True   
+   
+   
+   
+   
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()
@@ -149,7 +155,7 @@ def goto_main_menu_toyota_epc():
 
   
   
-def in_each_region(some_method):
+def in_each_region(some_method, vin_code):
   logging.debug('in_each_region')
   
   areas = {
@@ -216,13 +222,28 @@ def in_each_region(some_method):
         logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
         time.sleep(sleep)
 
+    # ДАЛЕЕ НЕ ПРОВЕРЯЛ TODO
     wsh.SendKeys("{F8}")
-    logging.debug('wtf')    
-
+    
+    if (some_method(vin_code) == True):
+      im = ImageGrab.grab((0, 0, 1030, 745))
+      im.save('static/vin/' + area + "/" + vin_code + ".png")
+      areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
+  
+  return areas
+  
 app = make_json_app(__name__)
 wsh = comclt.Dispatch("WScript.Shell")
 
-@app.route('/json/t_sub/<catalog_number>/')
+
+
+def search_applicability_in_current_area(catalog_number):
+  pass
+  
+
+
+  
+@app.route('/json/toyota_substitution/<catalog_number>/')
 def toyota_substitution(catalog_number):
   logging.debug('toyota_substitution')
   
@@ -234,7 +255,7 @@ def toyota_substitution(catalog_number):
 
   
 
-  
+
 @app.route('/json/vin/<vin_code>/')
 def vin(vin_code):
   logging.debug('vin')
@@ -244,9 +265,9 @@ def vin(vin_code):
   
   print "Searching " + str(vin)
 
-  in_each_region(search_vin_in_current_area)  
+  areas = in_each_region(search_vin_in_current_area, vin_code)
   
-  return post_process_allow_origin(jsonify(time=str(vin_code)))
+  return post_process_allow_origin(jsonify(time=str(areas))) 
   
   
   
@@ -272,7 +293,7 @@ def info(catalog_number, manufacturer):
   
     check_or_start_toyota_epc()
     
-    in_each_region(search_vin_in_current_area)
+    in_each_region(search_applicability_in_current_area, catalog_number)
         
     return post_process_allow_origin(jsonify(time=str(catalog_number)))
         
