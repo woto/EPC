@@ -3,6 +3,7 @@
 import cv
 import time
 import sys
+import pyscreenshot as ImageGrab
 
 #import pdb
 #import json
@@ -34,7 +35,13 @@ def find_match(file_name, template_array, roi, minimal, debug):
   print 'start: ' + str(time.time())
 
   acummulator = []
-  img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
+  #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
+  
+
+  im = ImageGrab.grab()
+  img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+  cv.SetData(img, im.tostring(), im.size[0]*3)
+  cv.CvtColor(img, img, cv.CV_RGB2BGR)  
 
   # y - 352 - начальная позиция перед серой полоской первого элемента
   # y - 672 - непосредственно сразу после серой полоской последнего элемента
@@ -42,17 +49,17 @@ def find_match(file_name, template_array, roi, minimal, debug):
   for block in range(352, 672, 32):
     for line in range(2):
       if(line == 0):
-        skip_y = 3
+        skip_y = 2
       elif(line == 1):
-        skip_y = 19
+        skip_y = 18
 
       for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), ('.', 'Point'))):
 
         # Вторые координаты задаются как относительные
         # block+1 (пропускаем красный пунктир)
-        # строго высота шрифта - 11
+        # строго высота шрифта - 12
         # 991 - не доходим до пунктира справа
-        cv.SetImageROI(img, (20, block+skip_y, 991, 11))
+        cv.SetImageROI(img, (20, block+skip_y, 991, 12))
 
         tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
         res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
