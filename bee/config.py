@@ -8,5 +8,5 @@
     'path': "D:/TECDOC_CD/1_2012/pb/tof.exe",
     'present': False
   },
-  'Redis': '37.110.44.140'
+  'Redis': '192.168.2.7'
 }

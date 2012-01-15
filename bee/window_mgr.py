@@ -58,6 +58,7 @@ class WindowMgr:
             #win32gui.SetForegroundWindow(self._handle[element])        
             win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
             win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)
+            win32gui.SetForegroundWindow(self._handle[element])            
             #time.sleep(0.2)
         #    win32gui.SetActiveWindow(self._handle[element])
             #time.sleep(0.2)

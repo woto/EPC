@@ -59,6 +59,14 @@ def click(x, y):
   win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
   win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
 
+def pairs(lst):
+    i = iter(lst)
+    first = prev = item = i.next()
+    for item in i:
+        yield prev, item
+        prev = item
+    yield item, first  
+  
 #def handleRemoveReadonly(func, path, exc):
 #  excvalue = exc[1]
 #  if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:
