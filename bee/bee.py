@@ -317,19 +317,20 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 #print s[0]
                 if s[0] <= 10:
                   #print element[0]
-                  accumulator.append({'x': x, 'y': y+y1, 'letter': element[0]})
+                  accumulator.append({'x': x, 'y': top, 'letter': element[0]})
                   #print x, y 
                   #if debug:
-                  #cv.Rectangle(img,
-                  #    (x, y+block),
-                  #    (x+tpl.width-1, y+tpl.height-1),
-                  #cv.Scalar(255, 255, 255, 255), cv.CV_FILLED)
+                  cv.Rectangle(img,
+                      (x, y),
+                      (x+tpl.width-1, y+tpl.height-1),
+                  cv.Scalar(255, 255, 255, 255), cv.CV_FILLED)
 
                   #cv.ResetImageROI(img)
 
                   #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
                   ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
                   #cv.ShowImage('image', img)
+                  #cv.WaitKey(0)
                   ##cv.ShowImage('template', tpl)
                 x = x + tpl.width
               y = y + tpl.width
