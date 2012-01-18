@@ -268,13 +268,15 @@ def search_applicability_in_current_area(catalog_number, cookie):
       #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
       
       im = ImageGrab.grab((16, 351, 998, 673))
-      img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
-      cv.SetData(img, im.tostring(), im.size[0]*3)
-      cv.CvtColor(img, img, cv.CV_RGB2BGR)  
+      img_rgb = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+      cv.SetData(img_rgb, im.tostring(), im.size[0]*3)
+      img = cv.CreateImage((982, 322), cv.IPL_DEPTH_8U, 1)
+      cv.CvtColor(img_rgb, img, cv.CV_RGB2GRAY)  
+      # тут img_rgb и im уже не нужны, не знаю что там с памятью
 
       logging.debug("Ищем серые полоски, а точнее точки - разделители (как выяснилось высота строк разнится)")
       cv.SetImageROI(img, (0, 0, 1, 673))
-      tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_COLOR)
+      tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_GRAYSCALE)
       res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
       cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)  
       lines = []
@@ -300,7 +302,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
           #cv.WaitKey(0)
                   
           for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), (' | ', 'Delimiter'), ('.', 'Point'))):
-            tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
+            tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_GRAYSCALE)
             
             # Можно было бы эту проверку вынести вверх, учитывая, что в данном случае высота шрифта постоянная,
             # но... ради потомков :)
