@@ -201,7 +201,7 @@ def choose_region(area):
   
 
 def search_applicability_in_current_area(catalog_number, cookie):
-  
+
   # TODO этот блок скопирован с блока открытия окна выбора регионов
 
   sleep = 0.1
@@ -287,18 +287,25 @@ def search_applicability_in_current_area(catalog_number, cookie):
       #pdb.set_trace()
       logging.debug("Найденные полоски " + str(lines))
       for y1, y2 in pairwise(lines):
+        logging.debug("Крутимся в цилке прохода по линейкам")
+        logging.debug("y1: " + str(y1) + " y2: " + str(y2))
+        for top in range(y1 + 4, y2, 16):
+          print top
           accumulator = []
-          logging.debug("Крутимся в цилке прохода по линейкам")
-          logging.debug("y1: " + str(y1) + " y2: " + str(y2))
-          cv.SetImageROI(img, (10, y1, 991, y2-y1))
+          logging.debug("Крутимся в цилке прохода по строкам внутри линейки, текущий верх: " + str(top))
+          cv.SetImageROI(img, (0, top, 998, 11))
           
-          for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), ('.', 'Point'))):
+          #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+          #cv.ShowImage('image', img)
+          #cv.WaitKey(0)
+                  
+          for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), (' | ', 'Delimiter'), ('.', 'Point'))):
             tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
             
             # Можно было бы эту проверку вынести вверх, учитывая, что в данном случае высота шрифта постоянная,
             # но... ради потомков :)
-            if y2 - y1 < tpl.height:
-              break
+            #if y2 - y1 < tpl.height:
+            #  break
               
             res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
             cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
@@ -307,6 +314,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
               for x in range(0, res.width):
                 #print x, y
                 s = cv.Get2D(res, y, x)
+                #print s[0]
                 if s[0] <= 10:
                   #print element[0]
                   accumulator.append({'x': x, 'y': y+y1, 'letter': element[0]})
@@ -326,45 +334,46 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 x = x + tpl.width
               y = y + tpl.width
 
-      time.sleep(0.1)
-      
-      #print time.time()
-      #cv.DestroyWindow('template')
-
-      #for f, s in pairs(accumulator):
-      #  print s['letter'],
-
-      #cv.ResetImageROI(img)
-
-      #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-      ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
-      #cv.ShowImage('image', img)
-      ##cv.ShowImage('template', tpl)
-      #
-      #cv.WaitKey(0)
-
-      #cv.DestroyWindow('image')
-      print accumulator
-      if len(accumulator) > 0:
-        tmp = ''
-        accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
-        #accumulator = sorted(accumulator, key=lambda k: k['x']) 
-        for i, letter in enumerate(accumulator):
-          if((letter['x'] - accumulator[i-1]['x']) > 10):
-            tmp += "&nbsp;" 
-            #sys.stdout.write('\t')
-          if((letter['x'] - accumulator[i-1]['x']) < 0):
-            tmp += "<br />"
-            #print ''
-          tmp += letter['letter']
-          #sys.stdout.write(letter['letter'])
+          #time.sleep(0.1)
           
-        jug.publish(cookie, tmp)      
-        #print '' 
-        #print '' 
-        #print 'end ' + str(time.time())        
-      
-      #break      
+          #print time.time()
+          #cv.DestroyWindow('template')
+
+          #for f, s in pairs(accumulator):
+          #  print s['letter'],
+
+          #cv.ResetImageROI(img)
+
+          #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+          ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
+          #cv.ShowImage('image', img)
+          ##cv.ShowImage('template', tpl)
+          #
+          #cv.WaitKey(0)
+
+          #cv.DestroyWindow('image')
+          print 'asdf'
+          if len(accumulator) > 0:
+            tmp = ''
+            accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
+            #accumulator = sorted(accumulator, key=lambda k: k['x']) 
+            for i, letter in enumerate(accumulator):
+              if((letter['x'] - accumulator[i-1]['x']) > 10):
+                tmp += "&nbsp;" 
+                #sys.stdout.write('\t')
+              if((letter['x'] - accumulator[i-1]['x']) < 0):
+                tmp += "<br />"
+                #print ''
+              tmp += letter['letter']
+              #sys.stdout.write(letter['letter'])
+              
+            jug.publish(cookie, tmp + "<br />")
+            #pdb.set_trace()
+            print tmp 
+            #print '' 
+            #print 'end ' + str(time.time())
+          
+          #break      
       
       logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
       coords = find_match(False, ['images/Toyota EPC/Scroll down.png'], (1005, 653, 1006, 673), 100, False)
@@ -407,8 +416,8 @@ wsh = comclt.Dispatch("WScript.Shell")
 for item in ps.listen():
   #pdb.set_trace()
   data = json.loads(item['data'])
-  print data
-  print ''
+  #print data
+  #print ''
   
   manufacturer = data['data']['data']['manufacturer']
   catalog_number = data['data']['data']['catalog_number']  
@@ -425,11 +434,14 @@ for item in ps.listen():
         key = "%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, area)
         logging.debug('Ключ lock:' + str(key))
         if(rs.setnx('lock:' + key, 1)):
-          rs.expire('lock:' + key, 1000)
+          rs.expire('lock:' + key, 30)
           if command == 'applicability':
             check_or_start_toyota_epc()
             choose_region(area)
-            print str(catalog_number)
+            #print str(catalog_number)
+            
+            jug.publish(cookie, "<b>" + area + "</b><br />")
+            
             search_applicability_in_current_area(catalog_number, cookie)
             #post_process_allow_origin(jsonify(time=str(catalog_number)))
           if command == 'images etc... ':
