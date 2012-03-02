@@ -1,4 +1,5 @@
 #coding=UTF-8
+
 import sys
 import win32api, win32con
 import time, math, random, pdb
@@ -49,8 +50,22 @@ def search_vin_in_current_area(vin, area):
   print "Found " + vin + " in " + area
 
 
-wsh = comclt.Dispatch("WScript.Shell")
+
+
+
+
+
+
 wmgr = WindowMgr()
+
+# Проверяем запущено ли вообще приложение
+try:
+  wmgr.find_window_wildcard("TOYOTA ELECTRONIC PARTS CATALOG")
+  wmgr.set_foreground()
+except:
+  sys.exit("Toyota EPC doesn't running.")
+
+wsh = comclt.Dispatch("WScript.Shell")
 
 main_wnd = None
 area_wnd = None
@@ -61,52 +76,60 @@ try:
   while True:
     wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area.*)")
     wmgr.set_foreground()
-    print 'Проверка на цикл 1'    
+    print 'Cycle 1'
     time.sleep(0.2)
-    area_wnd = find_match(None, ['images/Menu.png'], None, 100, True)
-    # Для того чтобы выравнять значения
-    area_wnd[0] = area_wnd[0] + 54
-    area_wnd[1] = area_wnd[1] + 322
+    area_wnd = find_match(None, ['images/Menu.png'], None, 100, False)
     wsh.SendKeys("{ESC}")
+    time.sleep(0.2)
     
 except:
   pass
-
 
 # Ищем любое окно и в нем ищем кнопку TMC Part Number...
 # повторяем пока не найдем
 while True:
   wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*)")
   wmgr.set_foreground()
-  print 'Проверка на цикл 2'
-  time.sleep(0.2)  
+  print wmgr._title
+  print wmgr._handle
+  print 'Cycle 2'
+  #time.sleep(0.1)  
   wsh.SendKeys("{ESC}")
   main_wnd = find_match(None, ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'], None, 100, False)  
   if main_wnd:
     break
-    
+
 # Если координаты Area/Language не найдены ранее
 if not area_wnd:
   while True:
-    # Кликаем на кнопке Area/Language
-    click(main_wnd[0] + 70, main_wnd[1] + 200)
-    
-    print 'Проверка на цикл 3'
-    time.sleep(0.2)
-    
-    # Убеждаемся что окно действительно открылось
-    area_wnd = find_match(None, ['images/Setup the necessary items.png'], None, 100, False)
-    if area_wnd:
-      #while True:
-      #  wsh.SendKeys("{ESC}")
-      #  print type(main_wnd[0] + 100)
-      #  main_wnd = find_match(None, ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'], (main_wnd[0], main_wnd[1], main_wnd[0]+500, main_wnd[1]+500), 300, False)
-      #  break
-      break
-
-    wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area.*)")
-    if wmgr._title.find('Area') >= 0:
+    try:
+      # Кликаем на кнопке Area/Language
+      click(main_wnd[0] + 70, main_wnd[1] + 200)
+      
+      print 'Cycle 3'
+      time.sleep(0.2)
+        
+      wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area.*)")
       wmgr.set_foreground()
+          
+      # Убеждаемся что окно действительно открылось
+      area_wnd = find_match(None, ['images/Setup the necessary items.png'], None, 100, False)
+      
+      if area_wnd:
+        # Для того чтобы выравнять значения
+        area_wnd[0] = area_wnd[0] - 168
+        area_wnd[1] = area_wnd[1] - 322
+
+        while True:
+          wsh.SendKeys("{ESC}")
+          coords = find_match(None, ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'], (main_wnd[0] - 10, main_wnd[1] - 10, main_wnd[0] + 200, main_wnd[1] + 50), 100, True)
+          if coords:
+            break
+        break
+
+    except:
+      pass
+
     
 print main_wnd
 print area_wnd

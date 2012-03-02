@@ -28,6 +28,6 @@ class WindowMgr:
 
     def set_foreground(self):
         """put the window in the foreground"""
-        win32gui.ShowWindow(self._handle, win32con.SW_SHOW)
+        win32gui.ShowWindow(self._handle, win32con.SW_SHOWNORMAL)
         win32gui.SetForegroundWindow(self._handle)
         win32gui.SetFocus(self._handle)
