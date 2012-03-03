@@ -1,0 +1,12 @@
+OpenCV-2.3.1-win-superpack.exe
+tesseract-3.01-win_vs.zip
+setuptools-0.6c11.win32-py2.7.exe
+scipy-0.10.0-win32-superpack-python2.7.exe
+pywin32-216.win32-py2.7.exe
+python-2.7.2.msi
+numpy-MKL-1.6.1.win32-py2.7.exe
+mingw-get-inst-20111118.exe
+httpd-2.2.22-win32-x86-no_ssl.msi
+Git-1.7.9-preview20120201.exe
+DAEMONToolsPro4410315-0262.exe
+cmake-2.8.7-win32-x86.exe
