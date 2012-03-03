@@ -59,7 +59,7 @@ area_wnd = None
 
 
 # Проверяем запущено ли вообще приложение
-wmgr.find_window_wildcard("TOYOTA ELECTRONIC PARTS CATALOG")
+wmgr.find_window_wildcard("(.*)TOYOTA ELECTRONIC PARTS CATALOG(.*)")
 if len(wmgr._handle) == 0:
   sys.exit("Toyota EPC doesn't running.")
   
@@ -108,6 +108,7 @@ for i in range(10):
       break
 
   except:
+    #print "Unexpected error:", sys.exc_info()[0]
     pass
 
     
