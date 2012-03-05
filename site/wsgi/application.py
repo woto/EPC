@@ -1,4 +1,5 @@
 import json
+from lockfile import FileLock
 import time, random
 from functools import partial
 from flask import Flask, jsonify, request
@@ -26,8 +27,11 @@ app = make_json_app(__name__)
 
 @app.route('/info/<default:detail>')
 def my_test(detail):
-  time.sleep(random.randrange(0, 5))
-  return post_process_allow_origin(jsonify(itworks='yeah!'))
+  lock = FileLock("./application.lock")
+  with lock:
+    print lock.path, 'is locked.'
+    time.sleep(random.randrange(0, 10))
+    return post_process_allow_origin(jsonify(itworks='yeah!'))
 
 @app.route('/')
 def hello_world():
