@@ -1,5 +1,7 @@
 import json
-from flask import Flask, jsonify
+import time, random
+from functools import partial
+from flask import Flask, jsonify, request
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.datastructures import Headers
 
@@ -22,8 +24,9 @@ def make_json_app(import_name, **kwargs):
 
 app = make_json_app(__name__)
 
-@app.route('/info/2210-MANNOL')
-def my_test():
+@app.route('/info/<default:detail>')
+def my_test(detail):
+  time.sleep(random.randrange(0, 5))
   return post_process_allow_origin(jsonify(itworks='yeah!'))
 
 @app.route('/')
@@ -33,13 +36,14 @@ def hello_world():
   return post_process_allow_origin(response)
 
 def post_process_allow_origin(response):
-  #response = make_response(data)
-  #origin = request.headers.get('Origin', '')
-  #if origin.endswith('mydomain.com'):
   response.headers['Access-Control-Allow-Origin'] = "*"
+
+  callback = request.args.get('callback', False)
+  content = str(callback) + '(' + response.data + ')'
+  return app.response_class(content)
+  
   return response
-  #response.headers['Access-Control-Allow-Credentials'] = 'true'
 
 if __name__ == '__main__':
   app.debug = True
-  app.run('127.0.0.1', 5001)
+  app.run('192.168.2.9', 5000)
