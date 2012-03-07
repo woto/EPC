@@ -1,3 +1,3 @@
 import sys
-sys.path.append("C:/Toyota-EPC/site/wsgi")
+sys.path.append("C:/EPC/site/wsgi")
 from application import app as application
