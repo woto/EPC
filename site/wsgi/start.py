@@ -7,6 +7,7 @@ import win32com.client as comclt
 from seed_vin import *
 from find_match import *
 from window_mgr import WindowMgr
+import os
 
 def click(x, y):  
   win32api.SetCursorPos((x,y))
@@ -22,7 +23,7 @@ def search_vin_in_current_area(vin, area):
     click(coords[0] + 100, coords[1] + 100)
     time.sleep(0.2)
   
-    coords = find_match(False, ['images/Search.png'], (400, 50, 550, 200), 100, False)
+    coords = find_match(False, ['images_toyota_epc/Search.png'], (400, 50, 550, 200), 100, False)
   
     if coords:
       break
@@ -37,13 +38,13 @@ def search_vin_in_current_area(vin, area):
   # Ждем пока пропадет фокус с кнопки Search
   #while True:
   #  time.sleep(0.2)
-  #  coords = find_match(None, ['images/Search (focused).png'], (400, 50, 550, 200), 100, False)
+  #  coords = find_match(None, ['images_toyota_epc/Search (focused).png'], (400, 50, 550, 200), 100, False)
   #  if not coords:
   #    break
   
   for i in range(3):
     time.sleep(0.2)
-    coords = find_match(None, ['images/Appropriate vehicle cannot be found.png'], None, 300, False)
+    coords = find_match(None, ['images_toyota_epc/Appropriate vehicle cannot be found.png'], None, 300, False)
     if coords:
       return
 
@@ -60,8 +61,12 @@ area_wnd = None
 
 # Проверяем запущено ли вообще приложение
 wmgr.find_window_wildcard("(.*)TOYOTA ELECTRONIC PARTS CATALOG(.*)")
-if len(wmgr._handle) == 0:
-  sys.exit("Toyota EPC doesn't running.")
+if len(wmgr._handle) == 0:  
+  origWD = os.getcwd()
+  os.chdir("C:\TMCEPCW3\APLI")
+  os.startfile("C:\TMCEPCW3\APLI\TMAIN.EXE")
+  os.chdir(origWD)  
+  #sys.exit("Toyota EPC doesn't running.")
   
 
 # Ищем любое окно и в нем ищем кнопку TMC Part Number...
@@ -75,7 +80,7 @@ while True:
               
   print 'Cycle 1'
   
-  main_wnd = find_match(None, ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'], None, 100, False)  
+  main_wnd = find_match(None, ['images_toyota_epc/TMC Part Number Translation/1.png', 'images_toyota_epc/TMC Part Number Translation/2.png'], None, 100, False)  
   if main_wnd:
     break
     
@@ -93,7 +98,7 @@ for i in range(10):
     print 'Cycle 2'
           
     # Убеждаемся, что окно действительно открылось
-    area_wnd = find_match(None, ['images/Setup the necessary items.png'], None, 200, False)
+    area_wnd = find_match(None, ['images_toyota_epc/Setup the necessary items.png'], None, 200, False)
 
     # Убеждаемся, что окно действительно закрылось    
     if area_wnd:
@@ -102,7 +107,7 @@ for i in range(10):
         
         print 'Cycle 3'
         
-        coords = find_match(None, ['images/TMC Part Number Translation/1.png', 'images/TMC Part Number Translation/2.png'], (main_wnd[0] - 10, main_wnd[1] - 10, main_wnd[0] + 200, main_wnd[1] + 50), 100, False)
+        coords = find_match(None, ['images_toyota_epc/TMC Part Number Translation/1.png', 'images_toyota_epc/TMC Part Number Translation/2.png'], (main_wnd[0] - 10, main_wnd[1] - 10, main_wnd[0] + 200, main_wnd[1] + 50), 100, False)
         if coords:
           break
       break
@@ -133,7 +138,7 @@ for id, vin in enumerate(vins):
       time.sleep(0.2)
     
       coords = find_match(False, 
-    	  ['images/Area Language setup/1.png', 'images/Area Language setup/2.png'], 
+    	  ['images_toyota_epc/Area Language setup/1.png', 'images_toyota_epc/Area Language setup/2.png'], 
         (100, 300, 400, 400), 100, False)  
     
       if coords:
@@ -145,14 +150,14 @@ for id, vin in enumerate(vins):
     # Ждем появление окна настроек Area/Language
     while True:
       time.sleep(0.2)
-      coords = find_match(False, ['images/Setup the necessary items.png'], False, 300, False)
+      coords = find_match(False, ['images_toyota_epc/Setup the necessary items.png'], False, 300, False)
       if coords:
         break
 
     for area in areas.keys():
       if areas[area]['searched']:
         continue
-      coords = find_match(False, ['images/Areas/' + area + '.png'], (300, 300, 500, 500), 100, False)
+      coords = find_match(False, ['images_toyota_epc/Areas/' + area + '.png'], (300, 300, 500, 500), 100, False)
       if coords:
         break
 

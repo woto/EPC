@@ -39,5 +39,6 @@ class WindowMgr:
         time.sleep(0.2)
         win32gui.ShowWindow(self._handle[element], win32con.SW_RESTORE)
         win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
+        win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWMAXIMIZED)
         time.sleep(0.2)
         win32gui.SetFocus(self._handle[element])

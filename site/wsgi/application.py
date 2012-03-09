@@ -9,20 +9,20 @@ from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.datastructures import Headers
 from window_mgr import WindowMgr
 from find_match import *
-import win32api, win32con
+import shutil
+import sys
+import subprocess
+import sys
+import Image
+
+
+
 import win32com.client as comclt
 import os
+from functions import *
 
-def move(x, y):  
-  win32api.SetCursorPos((x,y))
-
-  
-def click(x, y):  
-  win32api.SetCursorPos((x,y))
-  win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
-  win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
-
-
+if os.path.exists('./application.lock'):
+  shutil.rmtree('./application.lock')
 wsh = comclt.Dispatch("WScript.Shell")
   
 
@@ -45,7 +45,7 @@ def make_json_app(import_name, **kwargs):
 app = make_json_app(__name__)
 
 @app.route('/info/<catalog_number>/<manufacturer>')
-def my_test(catalog_number, manufacturer):
+def info(catalog_number, manufacturer):
   lock = FileLock("./application")
   with lock:
     wmgr = WindowMgr()
@@ -53,14 +53,18 @@ def my_test(catalog_number, manufacturer):
     # Проверяем запущено ли вообще приложение
     wmgr.find_window_wildcard("(.*)TECDOC(.*)")
     if len(wmgr._handle) == 0:
-      sys.exit("TECDOC doesn't running.")
-    wmgr.set_foreground()
-
-    print '1'
+      #sys.exit("TECDOC doesn't running.")
+      origWD = os.getcwd()
+      os.chdir("C:/TECDOC_CD/1_2012/pb/")
+      os.startfile("C:/TECDOC_CD/1_2012/pb/tof.exe")
+      os.chdir(origWD)
+    else:
+      wmgr.set_foreground()
+    
     while True:
       # Ищем кнопку поиска и щелкаем по ней
       coords = find_match(None, ['images_tecdoc/Search Button.png'], None, 100, False)
-      print 'cliced'
+      time.sleep(0.2)
       if coords:
         click(coords[0], coords[1])
         move(0, 0)
@@ -70,9 +74,45 @@ def my_test(catalog_number, manufacturer):
         wsh.SendKeys("{ENTER}")
         time.sleep(1)
         while True:
-          coords = find_match(None, ['images_tecdoc/Not Found.png', 'images_tecdoc/Found Any.png'], None, 100, False)
+          coords = find_match(None, ['images_tecdoc/Not Found.png'], None, 100, False)
           if coords:
-            return post_process_allow_origin(jsonify(time=time.time()))
+            wsh.SendKeys("{ESC}")
+            return post_process_allow_origin(jsonify(time="Ничего не нашли"))
+          coords = find_match(None, ['images_tecdoc/Found Any.png'], None, 100, False)
+          if coords:
+            im = ImageGrab.grab((200, 200, 1000, 1000))
+            #im.save("tmp.png")
+            print im.size[0]*2
+            print im.size[1]*2
+            im.resize((im.size[0]*2, im.size[1]*2)).save("tmp.png")
+            img = Image.open("tmp.png")
+            img = img.convert("RGBA")
+            pixdata = img.load()
+
+            # Clean the background noise, if color != white, then set to black.
+            # change with your color
+            for y in xrange(img.size[1]):
+              for x in xrange(img.size[0]):
+                if (pixdata[x, y] == (255, 255, 255, 255)) or (pixdata[x, y] == (0, 0, 0, 0)):
+                  pixdata[x, y] = (1, 1, 1, 255)
+
+            for y in xrange(img.size[1]):
+              for x in xrange(img.size[0]):
+                if pixdata[x, y] != (1, 1, 1, 255):
+                  pixdata[x, y] = (255, 255, 255, 255)
+                  
+
+            img.save("tmp.png")
+            print time.time()
+            #subprocess.call(["C:/Program Files/Tesseract-OCR/tesseract.exe", "C:/EPC/site/wsgi/tmp.png", "C:/EPC/site/wsgi/1", "-l", "rus"], 0, None, None, None, None, None, False, True, None, None, False, None, 0)
+            subprocess.call(["C:/Program Files/Tesseract-OCR/tesseract.exe", "C:/EPC/site/wsgi/tmp.png", "C:/EPC/site/wsgi/1", "-l", "rus"])
+            print time.time()
+            time.sleep(1)
+            infile = open('1.txt', 'r')
+            filestr = infile.read()
+            infile.close
+            return post_process_allow_origin(jsonify(time=str(catalog_number)+filestr))          
+          
       time.sleep(0.3)
       break
     
