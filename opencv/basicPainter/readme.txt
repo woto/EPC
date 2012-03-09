@@ -1,0 +1,1 @@
+g++ basicPainter.c  -I../include/ -I../../sift/include/ -I/Users/woto/Downloads/OpenCV-2.3.1/include/opencv/ -L/usr/local/Cellar/opencv/2.2/lib/ -I/usr/local/include/opencv -lm -lopencv_core -lopencv_highgui -lopencv_video -lopencv_imgproc  -I/usr/local/include -L/usr/local/lib
