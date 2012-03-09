@@ -1,0 +1,1 @@
+/Users/woto/Downloads/basicOCR/basicOCR/CMakeFiles/OCR.dir
