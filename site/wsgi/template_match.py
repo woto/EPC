@@ -24,19 +24,26 @@ for file in os.listdir(sys.argv[1]):
   # 292817 (Hyundai Microcat)
   threshold = int(sys.argv[3])
   res = cv.CreateImage((1 - tpl.width + 1, 700 - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
-  print time.time()
   cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
-  print time.time()
+  cv.ResetImageROI(img)
+
+  #rois = []
   for y in range(0, res.height):
     for x in range(0, res.width):
       s = cv.Get2D(res, y, x)
       if s[0] <= threshold:
-        cv.Rectangle(img,
-            (x-1, y-2),
-            (x+tpl.width, y+tpl.height),
-            cv.Scalar(0, 1, 0, 0))
+        cv.SetImageROI(img, (x+210, y+190, x+600, tpl.height))
+        cv.NamedWindow("reference", cv.CV_WINDOW_AUTOSIZE)
+        cv.ShowImage("reference", img)
+        cv.WaitKey(0)
+        #pass
+        #cv.Rectangle(img,
+        #    (x+210, y+190),
+        #    (x+tpl.width+100+500, y+tpl.height+189),
+        #    cv.Scalar(0, 1, 0, 0))
+        
 
-  print time.time()
+
   cv.NamedWindow("reference", cv.CV_WINDOW_AUTOSIZE)
   cv.NamedWindow("template", cv.CV_WINDOW_AUTOSIZE)
   cv.ShowImage("reference", img)
