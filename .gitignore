@@ -2,3 +2,4 @@
 *.swo
 application.lock
 .DS_Store
+*.pyc
