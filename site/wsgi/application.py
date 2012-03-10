@@ -15,9 +15,6 @@ import subprocess
 import sys
 import Image
 import ImageChops
-
-
-
 import win32com.client as comclt
 import os
 from functions import *
@@ -54,6 +51,10 @@ def info(catalog_number, manufacturer):
     
   lock = FileLock("./application")
   with lock:
+    
+    if os.path.exists("../images/" + catalog_number + ".png"):
+      return post_process_allow_origin(jsonify(time=str(catalog_number)))
+    
     wmgr = WindowMgr()
 
     # Проверяем запущено ли вообще приложение
@@ -69,58 +70,26 @@ def info(catalog_number, manufacturer):
     
     while True:
       # Ищем кнопку поиска и щелкаем по ней
-      coords = find_match(None, ['images_tecdoc/Search Button.png'], None, 100, False)
-      time.sleep(0.2)
+      coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 100, False)
+      wsh.SendKeys("{ESC}")
       if coords:
-        click(coords[0], coords[1])
-        move(0, 0)
-        time.sleep(0.2)
+        # Убираем галочку с "Любой номер"
+        click(757, 113)
+        # И нажимаем на Увеличительном стекле (Поиск запчастей)
+        click(209, 43)
+        # Вводим каталожный номер
         wsh.SendKeys(catalog_number)
-        time.sleep(0.2)
         wsh.SendKeys("{ENTER}")
-        time.sleep(1)
         while True:
-          coords = find_match(None, ['images_tecdoc/Not Found.png'], None, 100, False)
+          coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
           if coords:
-            wsh.SendKeys("{ESC}")
             return post_process_allow_origin(jsonify(time="Ничего не нашли"))
-          coords = find_match(None, ['images_tecdoc/Found Any.png'], None, 100, False)
+          coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
           if coords:
-            im = ImageGrab.grab((200, 200, 1000, 1000))
-            #im.save("tmp.png")
-            print im.size[0]*2
-            print im.size[1]*2
-            im.resize((im.size[0]*2, im.size[1]*2)).save("tmp.png")
-            img = Image.open("tmp.png")
-            img = img.convert("RGBA")
-            pixdata = img.load()
-
-            # Clean the background noise, if color != white, then set to black.
-            # change with your color
-            for y in xrange(img.size[1]):
-              for x in xrange(img.size[0]):
-                if (pixdata[x, y] == (255, 255, 255, 255)) or (pixdata[x, y] == (0, 0, 0, 0)):
-                  pixdata[x, y] = (1, 1, 1, 255)
-
-            for y in xrange(img.size[1]):
-              for x in xrange(img.size[0]):
-                if pixdata[x, y] != (1, 1, 1, 255):
-                  pixdata[x, y] = (255, 255, 255, 255)
-                  
-
-            img.save("tmp.png")
-            print time.time()
-            #subprocess.call(["C:/Program Files/Tesseract-OCR/tesseract.exe", "C:/EPC/site/wsgi/tmp.png", "C:/EPC/site/wsgi/1", "-l", "rus"], 0, None, None, None, None, None, False, True, None, None, False, None, 0)
-            subprocess.call(["C:/Program Files/Tesseract-OCR/tesseract.exe", "C:/EPC/site/wsgi/tmp.png", "C:/EPC/site/wsgi/1", "-l", "rus"])
-            print time.time()
-            time.sleep(1)
-            infile = open('1.txt', 'r')
-            filestr = infile.read()
-            infile.close
-            return post_process_allow_origin(jsonify(time=str(catalog_number)+filestr))          
-          
-      time.sleep(0.3)
-      break
+            im = ImageGrab.grab((0, 0, 1280, 1024))
+            im.save("../images/" + catalog_number + ".png")
+            return post_process_allow_origin(jsonify(time=str(catalog_number)))        
+      time.sleep(0.1)
     
   return post_process_allow_origin(jsonify(time=time.time()))
 
