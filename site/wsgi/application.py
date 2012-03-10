@@ -14,6 +14,7 @@ import sys
 import subprocess
 import sys
 import Image
+import ImageChops
 
 
 
@@ -44,8 +45,13 @@ def make_json_app(import_name, **kwargs):
 
 app = make_json_app(__name__)
 
+@app.route('/info/<catalog_number>', defaults={'manufacturer': None})
 @app.route('/info/<catalog_number>/<manufacturer>')
 def info(catalog_number, manufacturer):
+  # На случай с FRI.TECH. когда Rails почему-то делает не .../catalog_number/manufacturer, a .../catalog_number?manufacturer=manufacturer
+  if (manufacturer == None):
+    manufacturer = request.args.get('manufacturer', '')
+    
   lock = FileLock("./application")
   with lock:
     wmgr = WindowMgr()
