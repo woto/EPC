@@ -3,3 +3,4 @@
 application.lock
 .DS_Store
 *.pyc
+site/wsgi/img.png
