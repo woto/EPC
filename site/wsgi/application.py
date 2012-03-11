@@ -65,18 +65,16 @@ def info(catalog_number, manufacturer):
       os.chdir("C:/TECDOC_CD/1_2012/pb/")
       os.startfile("C:/TECDOC_CD/1_2012/pb/tof.exe")
       os.chdir(origWD)
-    else:
-      wmgr.set_foreground()
-
-    #while True:
-    #  try:
-    #    wmgr.find_window_wildcard("(.*)TECDOC(.*)")
-    #    wmgr.set_foreground(True, True)
-    #    break
-    #  except:
-    #    time.sleep(0.5)
-    #    pass
-    
+      
+    while True:
+      try:
+        wmgr.find_window_wildcard("(.*)TECDOC(.*)")
+        wmgr.set_foreground(True, True)
+        break
+      except:
+        time.sleep(0.5)
+        pass
+      
     while True:
       # Ищем кнопку поиска и щелкаем по ней
       coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 100, False)
