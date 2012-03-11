@@ -48,7 +48,7 @@ def info(catalog_number, manufacturer):
   # На случай с FRI.TECH. когда Rails почему-то делает не .../catalog_number/manufacturer, a .../catalog_number?manufacturer=manufacturer
   if (manufacturer == None):
     manufacturer = request.args.get('manufacturer', '')
-    
+
   lock = FileLock("./application")
   with lock:
     
@@ -67,6 +67,15 @@ def info(catalog_number, manufacturer):
       os.chdir(origWD)
     else:
       wmgr.set_foreground()
+
+    #while True:
+    #  try:
+    #    wmgr.find_window_wildcard("(.*)TECDOC(.*)")
+    #    wmgr.set_foreground(True, True)
+    #    break
+    #  except:
+    #    time.sleep(0.5)
+    #    pass
     
     while True:
       # Ищем кнопку поиска и щелкаем по ней
@@ -86,7 +95,7 @@ def info(catalog_number, manufacturer):
             return post_process_allow_origin(jsonify(time="Ничего не нашли"))
           coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
           if coords:
-            im = ImageGrab.grab((0, 0, 1280, 1024))
+            im = ImageGrab.grab((207, 204, 1128, 890))
             im.save("../images/" + catalog_number + ".png")
             return post_process_allow_origin(jsonify(time=str(catalog_number)))        
       time.sleep(0.1)
