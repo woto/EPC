@@ -23,7 +23,7 @@ def search_vin_in_current_area(vin, area):
     click(coords[0] + 100, coords[1] + 100)
     time.sleep(0.2)
   
-    coords = find_match(False, ['images_toyota_epc/Search.png'], (400, 50, 550, 200), 100, False)
+    coords = find_match(False, ['images/Toyota EPC/Search.png'], (400, 50, 550, 200), 100, False)
   
     if coords:
       break
@@ -44,7 +44,7 @@ def search_vin_in_current_area(vin, area):
   
   for i in range(3):
     time.sleep(0.2)
-    coords = find_match(None, ['images_toyota_epc/Appropriate vehicle cannot be found.png'], None, 300, False)
+    coords = find_match(None, ['images/Toyota EPC/Appropriate vehicle cannot be found.png'], None, 300, False)
     if coords:
       return
 
@@ -80,7 +80,7 @@ while True:
               
   print 'Cycle 1'
   
-  main_wnd = find_match(None, ['images_toyota_epc/TMC Part Number Translation/1.png', 'images_toyota_epc/TMC Part Number Translation/2.png'], None, 100, False)  
+  main_wnd = find_match(None, ['images/Toyota EPC/TMC Part Number Translation/1.png', 'images/Toyota EPC/TMC Part Number Translation/2.png'], None, 100, False)  
   if main_wnd:
     break
     
@@ -98,7 +98,7 @@ for i in range(10):
     print 'Cycle 2'
           
     # Убеждаемся, что окно действительно открылось
-    area_wnd = find_match(None, ['images_toyota_epc/Setup the necessary items.png'], None, 200, False)
+    area_wnd = find_match(None, ['images/Toyota EPC/Setup the necessary items.png'], None, 200, False)
 
     # Убеждаемся, что окно действительно закрылось    
     if area_wnd:
@@ -107,7 +107,7 @@ for i in range(10):
         
         print 'Cycle 3'
         
-        coords = find_match(None, ['images_toyota_epc/TMC Part Number Translation/1.png', 'images_toyota_epc/TMC Part Number Translation/2.png'], (main_wnd[0] - 10, main_wnd[1] - 10, main_wnd[0] + 200, main_wnd[1] + 50), 100, False)
+        coords = find_match(None, ['images/Toyota EPC/TMC Part Number Translation/1.png', 'images/Toyota EPC/TMC Part Number Translation/2.png'], (main_wnd[0] - 10, main_wnd[1] - 10, main_wnd[0] + 200, main_wnd[1] + 50), 100, False)
         if coords:
           break
       break
@@ -138,7 +138,7 @@ for id, vin in enumerate(vins):
       time.sleep(0.2)
     
       coords = find_match(False, 
-    	  ['images_toyota_epc/Area Language setup/1.png', 'images_toyota_epc/Area Language setup/2.png'], 
+         ['images/Toyota EPC/Area Language setup/1.png', 'images/Toyota EPC/Area Language setup/2.png'], 
         (100, 300, 400, 400), 100, False)  
     
       if coords:
@@ -150,14 +150,14 @@ for id, vin in enumerate(vins):
     # Ждем появление окна настроек Area/Language
     while True:
       time.sleep(0.2)
-      coords = find_match(False, ['images_toyota_epc/Setup the necessary items.png'], False, 300, False)
+      coords = find_match(False, ['images/toyota EPC/Setup the necessary items.png'], False, 300, False)
       if coords:
         break
 
     for area in areas.keys():
       if areas[area]['searched']:
         continue
-      coords = find_match(False, ['images_toyota_epc/Areas/' + area + '.png'], (300, 300, 500, 500), 100, False)
+      coords = find_match(False, ['images/Toyota EPC/Areas/' + area + '.png'], (300, 300, 500, 500), 100, False)
       if coords:
         break
 
