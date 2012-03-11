@@ -29,7 +29,27 @@ class WindowMgr:
         win32gui.EnumWindows(self._window_enum_callback, wildcard)
 
     def set_foreground(self, maximize, topmost, element=0):
-        """put the window in the foreground"""
+        
+        #http://msdn.microsoft.com/en-us/library/windows/desktop/ms633548(v=vs.85).aspx        
+        #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
+       
+        #http://msdn.microsoft.com/en-us/library/windows/desktop/ms633545(v=vs.85).aspx
+        #win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 60, 0, 0, win32con.SWP_NOSIZE)        
+        #win32gui.SetWindowPos(self._handle[element],win32con.HWND_TOPMOST,0,0,0,0,win32con.SWP_NOMOVE or win32con.SWP_NOSIZE);
+        #win32gui.SetWindowPos(self._handle[element],win32con.HWND_NOTOPMOST,0,0,0,0,win32con.SWP_SHOWWINDOW or win32con.SWP_NOMOVE or win32con.SWP_NOSIZE);
+        #win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
+        #win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE)
+        #win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
+        
+        #win32gui.SetActiveWindow(self._handle[element])      
+        #win32gui.SetFocus(self._handle[element])
+        #win32gui.BringWindowToTop(self._handle[element])
+        #win32gui.SetForegroundWindow(self._handle[element])        
+
+
+        """
+        Для TECDOC
+        """
         #time.sleep(0.2)
         #win32gui.SetForegroundWindow(self._handle[element])        
         win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
@@ -42,3 +62,11 @@ class WindowMgr:
         win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)        
         #time.sleep(0.2)
         win32gui.SetFocus(self._handle[element])
+
+
+        """
+        Для Toyota EPC
+        win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
+        win32gui.SetForegroundWindow(self._handle[element])
+        win32gui.SetFocus(self._handle[element])
+        """

@@ -74,7 +74,7 @@ if len(wmgr._handle) == 0:
 while True:
   wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*)")
   for i, element in enumerate(wmgr._handle):
-    wmgr.set_foreground(i)
+    wmgr.set_foreground(False, False, i)
     if wmgr._title[i].find("Main") == -1:
       wsh.SendKeys("{ESC}")
               
@@ -92,7 +92,7 @@ for i in range(10):
     time.sleep(pow(i/2, 1.7))
     
     wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area.*)")
-    wmgr.set_foreground()
+    wmgr.set_foreground(False, False)
     time.sleep(pow(i/2, 1.7))
     
     print 'Cycle 2'
