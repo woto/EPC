@@ -69,7 +69,7 @@ def search_vin_in_current_area(vin, area):
 
 if os.path.exists('./application.lock'):
   shutil.rmtree('./application.lock')
-wsh = comclt.Dispatch("WScript.Shell")
+
   
 
 def make_json_app(import_name, **kwargs):
@@ -89,20 +89,22 @@ def make_json_app(import_name, **kwargs):
 
 
 app = make_json_app(__name__)
-
+wsh = comclt.Dispatch("WScript.Shell")
 @app.route('/info/<catalog_number>', defaults={'manufacturer': None})
 @app.route('/info/<catalog_number>/<manufacturer>')
 def info(catalog_number, manufacturer):
+  
   # На случай с FRI.TECH. когда Rails почему-то делает не .../catalog_number/manufacturer, a .../catalog_number?manufacturer=manufacturer
   if (manufacturer == None):
     manufacturer = request.args.get('manufacturer', '')
 
+  print 'entering lock'
   lock = FileLock("./application")
   with lock:
 
     if manufacturer == "TOYOTA":
 
-      wsh = comclt.Dispatch("WScript.Shell")
+      
       wmgr = WindowMgr()
       main_wnd = None
       area_wnd = None
@@ -123,7 +125,9 @@ def info(catalog_number, manufacturer):
       while True:
         wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*)")
         for i, element in enumerate(wmgr._handle):
-          wmgr.set_foreground(False, False, i)
+          wmgr.set_foreground(False, False, False, i)
+          time.sleep(1)
+	  return post_process_allow_origin(jsonify(time=time.time()))
           if wmgr._title[i].find("Main") == -1:
             wsh.SendKeys("{ESC}")
                     
@@ -222,7 +226,7 @@ def info(catalog_number, manufacturer):
           search_vin_in_current_area(vin, area)
           
     else:
-        
+      print 'not toyota'
       if os.path.exists("../images/" + catalog_number + ".png"):
         return post_process_allow_origin(jsonify(time=str(catalog_number)))
       
@@ -240,7 +244,7 @@ def info(catalog_number, manufacturer):
       while True:
         try:
           wmgr.find_window_wildcard("(.*)TECDOC(.*)")
-          wmgr.set_foreground(True, True)
+          wmgr.set_foreground(True, True, True)
           break
         except:
           time.sleep(0.5)
@@ -248,25 +252,36 @@ def info(catalog_number, manufacturer):
         
       while True:
         # Ищем кнопку поиска и щелкаем по ней
-        coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 100, False)
         wsh.SendKeys("{ESC}")
+        coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 10, False)
         if coords:
-          # Убираем галочку с "Любой номер"
-          click(757, 113)
-          # И нажимаем на Увеличительном стекле (Поиск запчастей)
-          click(209, 43)
-          # Вводим каталожный номер
-          wsh.SendKeys(catalog_number)
-          wsh.SendKeys("{ENTER}")
-          while True:
-            coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
+          while True: 
+            # Убираем галочку с "Любой номер"
+            click(757, 113)
+            time.sleep(0.1)
+            coords = find_match(None, ['images/Tecdoc/Check Box - Unchecked.png'], (749, 104, 767, 121), 10, False)
             if coords:
-              return post_process_allow_origin(jsonify(time="Ничего не нашли"))
-            coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
-            if coords:
-              im = ImageGrab.grab((207, 204, 1128, 890))
-              im.save("../images/" + catalog_number + ".png")
-              return post_process_allow_origin(jsonify(time=str(catalog_number)))        
+              # И нажимаем на Увеличительном стекле (Поиск запчастей)
+              click(209, 43)
+              # Вводим каталожный номер
+              wsh.SendKeys(catalog_number)
+              wsh.SendKeys("{ENTER}")
+              while True:
+                coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
+                if coords:
+                  while True:
+                    wsh.SendKeys("{ESC}")
+                    coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)   
+                    if not coords: 
+                      return post_process_allow_origin(jsonify(time="Ничего не нашли"))
+                    time.sleep(0.1)
+                coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
+                if coords:
+                  im = ImageGrab.grab((207, 204, 1128, 890))
+                  im.save("../images/" + catalog_number + ".png")
+                  return post_process_allow_origin(jsonify(time=str(catalog_number)))        
+        print 'Activate TecDoc window' + str(time.time())
+        wmgr.set_foreground(True, True, True)
         time.sleep(0.1)
     
   return post_process_allow_origin(jsonify(time=time.time()))

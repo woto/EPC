@@ -28,7 +28,7 @@ class WindowMgr:
         self._title = []
         win32gui.EnumWindows(self._window_enum_callback, wildcard)
 
-    def set_foreground(self, maximize, topmost, element=0):
+    def set_foreground(self, maximize, topmost, dirty_bitch, element=0):
         
         #http://msdn.microsoft.com/en-us/library/windows/desktop/ms633548(v=vs.85).aspx        
         #win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
@@ -47,26 +47,44 @@ class WindowMgr:
         #win32gui.SetForegroundWindow(self._handle[element])        
 
 
-        """
-        Для TECDOC
-        """
-        #time.sleep(0.2)
-        #win32gui.SetForegroundWindow(self._handle[element])        
-        win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
-        #win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)
-        #time.sleep(0.2)
-        win32gui.SetActiveWindow(self._handle[element])
-        #time.sleep(0.2)
-        win32gui.ShowWindow(self._handle[element], win32con.SW_RESTORE)
-        win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
-        win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)        
-        #time.sleep(0.2)
-        win32gui.SetFocus(self._handle[element])
+        if dirty_bitch:
+            """
+            Для TECDOC
+            """
+            #time.sleep(0.2)
+            win32gui.SetForegroundWindow(self._handle[element])        
+            win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
+            #win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)
+            #time.sleep(0.2)
+            win32gui.SetActiveWindow(self._handle[element])
+            #time.sleep(0.2)
+            #win32gui.ShowWindow(self._handle[element], win32con.SW_RESTORE)
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
+            win32gui.ShowWindow (self._handle[element],win32con.SW_SHOWMAXIMIZED)        
+            #time.sleep(0.2)
+            win32gui.SetFocus(self._handle[element])
+
+        else:
+            """
+            Для Toyota EPC
+            """
+            #win32gui.SetForegroundWindow(self._handle[element])
+            win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
+            win32gui.SetFocus(self._handle[element])
+            
+            win32gui.BringWindowToTop(self._handle[element])
+            win32gui.SetActiveWindow(self._handle[element])
 
 
-        """
-        Для Toyota EPC
-        win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
-        win32gui.SetForegroundWindow(self._handle[element])
-        win32gui.SetFocus(self._handle[element])
-        """
+            win32gui.SetForegroundWindow(self._handle[element])
+            win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE | win32con.SWP_NOMOVE)
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOWNORMAL)
+            win32gui.ShowWindow(self._handle[element], win32con.SW_SHOW)
+            win32gui.SetFocus(self._handle[element])
+            
+            win32gui.BringWindowToTop(self._handle[element])
+            win32gui.SetActiveWindow(self._handle[element])            
+            
+            
