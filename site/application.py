@@ -1,5 +1,6 @@
 #coding=UTF-8
 
+
 import json
 from lockfile import FileLock
 import time, random
@@ -29,6 +30,14 @@ from find_match import *
 from window_mgr import WindowMgr
 import os
 
+import logging, os, sys 
+
+import os, sys
+
+logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\' at line %(lineno)d: %(message)s', 
+                    datefmt='%Y-%m-%d %H:%M:%S', 
+                    level=logging.DEBUG, 
+                    filename='../logs/application.log')
 
 def search_vin_in_current_area(vin, area):
 
@@ -93,17 +102,14 @@ wsh = comclt.Dispatch("WScript.Shell")
 @app.route('/info/<catalog_number>', defaults={'manufacturer': None})
 @app.route('/info/<catalog_number>/<manufacturer>')
 def info(catalog_number, manufacturer):
-  
   # На случай с FRI.TECH. когда Rails почему-то делает не .../catalog_number/manufacturer, a .../catalog_number?manufacturer=manufacturer
   if (manufacturer == None):
     manufacturer = request.args.get('manufacturer', '')
 
-  print 'entering lock'
   lock = FileLock("./application")
   with lock:
 
     if manufacturer == "TOYOTA":
-
       
       wmgr = WindowMgr()
       main_wnd = None
@@ -227,15 +233,18 @@ def info(catalog_number, manufacturer):
           
     else:
       print 'not toyota'
-      if os.path.exists("../images/" + catalog_number + ".png"):
+      logging.debug('Проверяем наличие закешированной картинки') 
+      if os.path.exists("./static/" + catalog_number + ".png"):
+        logging.debug('Нашли и показали') 
         return post_process_allow_origin(jsonify(time=str(catalog_number)))
       
       wmgr = WindowMgr()
 
       # Проверяем запущено ли вообще приложение
+      logging.debug('Ищем окно TECDOC') 
       wmgr.find_window_wildcard("(.*)TECDOC(.*)")
       if len(wmgr._handle) == 0:
-        #sys.exit("TECDOC doesn't running.")
+        logging.debug('TECDOC не был запущен, запускаем') 
         origWD = os.getcwd()
         os.chdir("C:/TECDOC_CD/1_2012/pb/")
         os.startfile("C:/TECDOC_CD/1_2012/pb/tof.exe")
@@ -243,30 +252,42 @@ def info(catalog_number, manufacturer):
         
       while True:
         try:
+          logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен') 
           wmgr.find_window_wildcard("(.*)TECDOC(.*)")
+          logging.debug('Делаем его активным') 
           wmgr.set_foreground(True, True, True)
           break
         except:
+          logging.debug('Не нашли, спим') 
           time.sleep(0.5)
           pass
         
       while True:
-        # Ищем кнопку поиска и щелкаем по ней
+        logging.debug('Нажимем ESC') 
         wsh.SendKeys("{ESC}")
+        logging.debug('Ищем поставленную галочку на "Любой номер"') 
         coords = find_match(None, ['images/Tecdoc/Check Box - Checked.png'], (749, 104, 767, 121), 10, False)
         if coords:
+          logging.debug('Нашли') 
           while True: 
-            # Убираем галочку с "Любой номер"
-            click(757, 113)
+            logging.debug('Спим') 
             time.sleep(0.1)
+            logging.debug('Убираем галочку с "Любой номер"') 
+            click(757, 113)
+            logging.debug('Спим')
+            time.sleep(0.1)
+            logging.debug('Ищем отсутствие галочки на "Любой номер"') 
             coords = find_match(None, ['images/Tecdoc/Check Box - Unchecked.png'], (749, 104, 767, 121), 10, False)
             if coords:
-              # И нажимаем на Увеличительном стекле (Поиск запчастей)
+              logging.debug('Нашли, нажимаем на увеличительном стекле (Поиск запчастей)') 
               click(209, 43)
-              # Вводим каталожный номер
+              logging.debug('Вводим каталожный номер.') 
               wsh.SendKeys(catalog_number)
+              logging.debug('Нажимаем Enter') 
               wsh.SendKeys("{ENTER}")
               while True:
+                logging.debug('Зашли в цикл, в котором будем искать либо наличие, либо отсутсвтие информации позапчасти') 
+                logging.debug('Ищем окно, сообщающее, что каталожный номер не найден') 
                 coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
                 if coords:
                   while True:
@@ -275,15 +296,23 @@ def info(catalog_number, manufacturer):
                     if not coords: 
                       return post_process_allow_origin(jsonify(time="Ничего не нашли"))
                     time.sleep(0.1)
+                logging.debug('Ищем что-то там :), сообщающее, что каталожный номер найден') 
                 coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
                 if coords:
+                  logging.debug('Нашли что-то там :)') 
+                  logging.debug('Граббим экран') 
                   im = ImageGrab.grab((207, 204, 1128, 890))
-                  im.save("../images/" + catalog_number + ".png")
+                  logging.debug('Сохраняем изображением в папке') 
+                  im.save("./static/" + catalog_number + ".png")
+                  logging.debug('Возвращаем результат') 
                   return post_process_allow_origin(jsonify(time=str(catalog_number)))        
-        print 'Activate TecDoc window' + str(time.time())
+        
+        logging.debug('Activate TecDoc window' + str(time.time())) 
         wmgr.set_foreground(True, True, True)
+        logging.debug('Спим') 
         time.sleep(0.1)
     
+  logging.debug('Безусловный возврат результата.') 
   return post_process_allow_origin(jsonify(time=time.time()))
 
 @app.route('/')
