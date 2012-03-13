@@ -1,5 +1,6 @@
 import pyscreenshot as ImageGrab
-import cv2.cv as cv
+#import cv2.cv as cv
+import cv
 
 def find_match(file_name, template_array, roi, minimal, debug):
 
