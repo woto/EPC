@@ -1,8 +1,6 @@
 *.swp
 *.swo
-*lock
+*.lock
 *.log
-.DS_Store
 *.pyc
-site/wsgi/img.png
-site/wsgi/static
+.DS_Store
