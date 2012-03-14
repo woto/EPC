@@ -9,7 +9,6 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import default_exceptions, HTTPException
 from werkzeug.datastructures import Headers
 from window_mgr import WindowMgr
-from find_match import *
 import shutil
 import sys
 import subprocess
@@ -26,7 +25,6 @@ import win32api, win32con
 import time, math, random, pdb
 import win32com.client as comclt
 from seed_vin import *
-from find_match import *
 from window_mgr import WindowMgr
 import os
 
