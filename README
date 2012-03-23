@@ -1,16 +1,16 @@
-Проблематичные:
+п»їРџСЂРѕР±Р»РµРјР°С‚РёС‡РЅС‹Рµ:
 11236
 222228
 OP617
 598281
 
 http://faq.lancer-club.ru/%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D1%8B%D0%B5_%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B8
-Инструкция по установке и запуску Mitsubishi ASA
-Mitsubishi ASA Japan, update 226 (14.01.2011), 334 МБ
-Mitsubishi ASA North America, update 163 (27.08.2010), 153 МБ
-Mitsubishi ASA Europe, update 204 (04.02.2011), 232 МБ
-Mitsubishi ASA General Export, update 169 (04.02.2011), 322 МБ
-Во всех частях используется оболочка версии 1.4.0.2.
+РРЅСЃС‚СЂСѓРєС†РёСЏ РїРѕ СѓСЃС‚Р°РЅРѕРІРєРµ Рё Р·Р°РїСѓСЃРєСѓ Mitsubishi ASA
+Mitsubishi ASA Japan, update 226 (14.01.2011), 334 РњР‘
+Mitsubishi ASA North America, update 163 (27.08.2010), 153 РњР‘
+Mitsubishi ASA Europe, update 204 (04.02.2011), 232 РњР‘
+Mitsubishi ASA General Export, update 169 (04.02.2011), 322 РњР‘
+Р’Рѕ РІСЃРµС… С‡Р°СЃС‚СЏС… РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РѕР±РѕР»РѕС‡РєР° РІРµСЂСЃРёРё 1.4.0.2.
 
 Mitsubishi
 
@@ -21,13 +21,13 @@ Jap- upd266 (27.08.2010),
 USA- upd163 (27.08.2010))
 
 http://rutracker.org/forum/viewtopic.php?t=2331948
-Обновление MMC ASA Japan - upd285 (14.01.2011) только база 1.4.0.2 [ENG]
+РћР±РЅРѕРІР»РµРЅРёРµ MMC ASA Japan - upd285 (14.01.2011) С‚РѕР»СЊРєРѕ Р±Р°Р·Р° 1.4.0.2 [ENG]
 
 http://rutracker.org/forum/viewtopic.php?t=3975101
 Mitsubishi ASA (General) 11/2011 [ENG + RUS]
 
 http://rutracker.org/forum/viewtopic.php?t=3969025
-Обновление MMC ASA Europe update 253 03.02.2012 1.4.0.2 [ENG]
+РћР±РЅРѕРІР»РµРЅРёРµ MMC ASA Europe update 253 03.02.2012 1.4.0.2 [ENG]
 
 
 ----
@@ -46,3 +46,9 @@ http://gearman.org/
 http://pypi.python.org/pypi?%3Aaction=search&term=redis&submit=search
 http://www.google.com/search?client=safari&rls=en&q=pipy&ie=UTF-8&oe=UTF-8#hl=en&client=safari&rls=en&sclient=psy-ab&q=python+get+worker+status&oq=python+get+worker+stat&aq=0w&aqi=q-w2&aql=&gs_l=serp.3.0.33i21l2.35025l42047l3l44241l26l26l2l1l1l0l163l2373l14j9l23l0.frgbld.&psj=1&bav=on.2,or.r_gc.r_pw.r_cp.r_qf.,cf.osb&fp=e5601e2b4e3df96b&biw=1123&bih=664
 http://nosql.mypopescu.com/tagged/redis/page/1
+
+----
+
+INSTALL
+
+1. Р’ РїРµСЂРµРјРµРЅРЅСѓСЋ РѕРєСЂСѓР¶РµРЅРёСЏ Path РґРѕР±Р°РІРёС‚СЊ C:\Python27
