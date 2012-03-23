@@ -51,4 +51,9 @@ http://nosql.mypopescu.com/tagged/redis/page/1
 
 INSTALL
 
-1. В переменную окружения Path добавить C:\Python27
+Скачать/установить Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
+В переменную окружения Path добавить C:\Python27
+Скачать/устновить easy_install http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
+В переменную окружения Path добавить C:\Python27\Scripts
+#> easy_install pip 
+#> pip install juggernaut // juggernaut 0.2, redis 2.4.11
