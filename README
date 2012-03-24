@@ -51,9 +51,24 @@ http://nosql.mypopescu.com/tagged/redis/page/1
 
 INSTALL
 
-Скачать/установить Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
-В переменную окружения Path добавить C:\Python27
-Скачать/устновить easy_install http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
-В переменную окружения Path добавить C:\Python27\Scripts
-#> easy_install pip 
-#> pip install juggernaut // juggernaut 0.2, redis 2.4.11
+Переменные окружения:
+PATH C:\Python27;C:\Python27\Scripts
+PYTHONPATH C:\opencv\build\python\2.7
+# C:\MinGW\bin (Не уверен, что этот автоматически прописывается)
+
+Скачать/устновить:
+git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
+mingw 20111118 http://sourceforge.net/projects/mingw/files/latest/download?source=files
+Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
+setuptools 0.6c11 http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
+#> easy_install pip
+numpy 1.6.1 http://sourceforge.net/projects/numpy/files/NumPy/1.6.1/numpy-1.6.1-win32-superpack-python2.7.exe/download
+scipy 0.10.1 http://sourceforge.net/projects/scipy/files/scipy/0.10.1/scipy-0.10.1-win32-superpack-python2.7.exe/download
+pywin32 216 http://sourceforge.net/projects/pywin32/files/pywin32/Build216/pywin32-216.win32-py2.7.exe/download
+pil 1.1.7 http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe
+#> pip install juggernaut # juggernaut 0.2, redis 2.4.11
+#> pip install pyscreenshot # 0.2.2, yapsi 1.8
+#> pip install flask
+
+
+----
