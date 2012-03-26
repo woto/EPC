@@ -12,8 +12,7 @@ import subprocess
 import Image
 import ImageChops
 import win32com.client as comclt
-from functions import *
-from tecdoc_manufacturer_synonyms import *
+from functions import * 
 import pyscreenshot as ImageGrab
 
 import win32api, win32con
@@ -411,4 +410,4 @@ def post_process_allow_origin(response):
   
 if __name__ == '__main__':
   app.debug = True
-  app.run('192.168.2.9', 5000)
+  app.run()
