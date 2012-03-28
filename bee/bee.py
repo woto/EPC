@@ -36,17 +36,17 @@ ps.subscribe('bee')
 #rc.publish('foo', 'hello world')
 
 def check_or_start_toyota_epc():
-  logging.debug('check_or_start_toyota_epc ' + str(key))
+  logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()
-  logging.debug('Проверяем запущено ли вообще Toyota EPC' + str(key)) 
+  logging.debug('Проверяем запущено ли вообще Toyota EPC') 
   wmgr.find_window_wildcard("TOYOTA ELECTRONIC PARTS CATALOG(.*)")
   if len(wmgr._handle) == 0:  
-    logging.debug('Нет, запускаем ' + str(key))
+    logging.debug('Нет, запускаем')
     origWD = os.getcwd()
-    os.chdir(re.search("(.*)\/", toyota_epc_path).group(0))
-    os.startfile(toyota_epc_path)
+    os.chdir(re.search("(.*)\/", config['Toyota EPC']['path']).group(0))
+    os.startfile(config['Toyota EPC']['path'])
     os.chdir(origWD)
-  logging.debug("Вышли из метода проверки запущенности Toyota EPC. Далее считается, что Toyota EPC запущен " + str(key))
+  logging.debug("Вышли из метода проверки запущенности Toyota EPC. Далее считается, что Toyota EPC запущен")
 
 
 def search_vin_in_current_area(vin):
@@ -88,7 +88,7 @@ def search_vin_in_current_area(vin):
   
   
   
-def check_or_start_tectdoc():
+def check_or_start_tecdoc():
   logging.debug('check_or_start_tectdoc')
   wmgr = WindowMgr()
   logging.debug('Ищем окно TECDOC') 
@@ -96,8 +96,8 @@ def check_or_start_tectdoc():
   if len(wmgr._handle) == 0:
     logging.debug('TECDOC не был запущен, запускаем') 
     origWD = os.getcwd()
-    os.chdir(re.search("(.*)\/", tecdoc_path).group(0))
-    os.startfile(tecdoc_path)
+    os.chdir(re.search("(.*)\/", config['Tecdoc']['path']).group(0))
+    os.startfile(config['Tecdoc']['path'])
     os.chdir(origWD)
   logging.debug("Вышли из метода проверки запущенности Tecdoc. Далее считается, что Tecdoc запущен")
    
@@ -141,82 +141,77 @@ def goto_main_menu_toyota_epc():
 
   
   
-def in_each_region(some_method, vin_code):
-  logging.debug('in_each_region')
+def choose_region(area):
+  logging.debug('choose_region("' + area + '")')
   
   areas = {
-    'Europe': {'searched': False, 'coords': None, 'blue_point_y': 148}, 
-    'General': {'searched': False, 'coords': None, 'blue_point_y': 165},
-    'USA, Canada': {'searched': False, 'coords': None, 'blue_point_y': 181},
-    'Japan': {'searched': False, 'coords': None, 'blue_point_y': 200}
+    'Europe': {'blue_point_y': 148}, 
+    'General': {'blue_point_y': 165},
+    'USA, Canada': {'blue_point_y': 181},
+    'Japan': {'blue_point_y': 200}
   }
-
-  for area in areas.keys():
   
-    goto_main_menu_toyota_epc()
-    logging.debug("Находимся в цикле 'for area in areas.keys():' непосредственно после перехода в главное меню, обрабатываемый регион " + str(area))
-    
-    sleep = 0.1
-    
-    while True:
-      try:
-        logging.debug("Нахдимся внутри цикла щелканья на кнопку Area/Language и поиска Setup the necessary items")
-        logging.debug("Щелкаем на Area/Language в главном меню")
-        click(264, 344)
-        logging.debug("Щелкнули на Area/Language в главном меню")
-        time.sleep(sleep) # Обязтаельно
-        logging.debug('Ищем любое окно TOYOTA...Area')
-        time.sleep(sleep) # Обязательно
-        wmgr = WindowMgr()
-        wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area).*")
-        wmgr.set_foreground(False, False, False)
-        logging.debug('Нашли окно TOYOTA...Area, сделали его активным')
-        
-        logging.debug('Ищем Setup the necessary items')   
-        coords = find_match(False, ['images/Toyota EPC/Setup the necessary items.png'], (182, 350, 190, 361), 100, False)
-        if coords:
-          logging.debug('Теперь мы точно уверены, что окно выбора регионов открыто, т.к. нашли Setup the necessary items')
-          break
-        else:
-          logging.debug("Генерируем исключение. Не удалось найти 'Setup the necessary items'")
-          raise
-      except:
-        sleep = sleep + 0.1
-        logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна регионов с Setup the necessary items")
-        time.sleep(sleep)
-        
-
-    sleep = 0.1
-    
-    while True:
-      try:
-        time.sleep(sleep) # Обязательно
-        click(130, areas[area]['blue_point_y'])
-        time.sleep(sleep) # Обязательно        
-        img = ImageGrab.grab((158, 135, 159, 252))
-        img = img.convert("RGBA")
-        pixdata = img.load()
-
-        if(pixdata[0, areas[area]['blue_point_y'] - 135] == (10, 36, 106, 255)):
-          logging.debug('Проверка синей полоски прошла успешно, регион действительно выбран')
-          break
-        else:
-          logging.debug('В процессе клика на конкретном регионе и последующей проверкой синей полоски произошла ошибка')
-          raise
-      except:
-        sleep = sleep + 0.1
-        logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
-        time.sleep(sleep)
-
-    # ДАЛЕЕ НЕ ПРОВЕРЯЛ TODO
-    wsh.SendKeys("{F8}")
-    
-    if (some_method(vin_code) == True):
-      im = ImageGrab.grab((0, 0, 1030, 745))
-      im.save('static/vin/' + area + "/" + vin_code + ".png")
-      areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
+  goto_main_menu_toyota_epc()
+  logging.debug("Теперь мы точно знаем, что находимся в главном меню, обрабатываемый регион " + str(area))
   
-  return areas
+  sleep = 0.1
+  
+  while True:
+    try:
+      logging.debug("Нахдимся внутри цикла щелканья на кнопку Area/Language и поиска Setup the necessary items")
+      logging.debug("Щелкаем на Area/Language в главном меню")
+      click(264, 344)
+      logging.debug("Щелкнули на Area/Language в главном меню")
+      time.sleep(sleep) # Обязтаельно
+      logging.debug('Ищем любое окно TOYOTA...Area')
+      time.sleep(sleep) # Обязательно
+      wmgr = WindowMgr()
+      wmgr.find_window_wildcard(".*TOYOTA ELECTRONIC PARTS CATALOG(.*Area).*")
+      wmgr.set_foreground(False, False, False)
+      logging.debug('Нашли окно TOYOTA...Area, сделали его активным')
+      
+      logging.debug('Ищем Setup the necessary items')   
+      coords = find_match(False, ['images/Toyota EPC/Setup the necessary items.png'], (182, 350, 190, 361), 100, False)
+      if coords:
+        logging.debug('Теперь мы точно уверены, что окно выбора регионов открыто, т.к. нашли Setup the necessary items')
+        break
+      else:
+        logging.debug("Генерируем исключение. Не удалось найти 'Setup the necessary items'")
+        raise
+    except:
+      sleep = sleep + 0.1
+      logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна регионов с Setup the necessary items")
+      time.sleep(sleep)
+
+  sleep = 0.1
+  
+  while True:
+    try:
+      time.sleep(sleep) # Обязательно
+      click(130, areas[area]['blue_point_y'])
+      time.sleep(sleep) # Обязательно        
+      img = ImageGrab.grab((158, 135, 159, 252))
+      img = img.convert("RGBA")
+      pixdata = img.load()
+
+      if(pixdata[0, areas[area]['blue_point_y'] - 135] == (10, 36, 106, 255)):
+        logging.debug('Проверка синей полоски прошла успешно, регион действительно выбран')
+        break
+      else:
+        logging.debug('В процессе клика на конкретном регионе и последующей проверкой синей полоски произошла ошибка')
+        raise
+    except:
+      sleep = sleep + 0.1
+      logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
+      time.sleep(sleep)
+
+  # ДАЛЕЕ НЕ ПРОВЕРЯЛ TODO
+  wsh.SendKeys("{F8}")
+  
+  #if (some_method(vin_code) == True):
+  #  im = ImageGrab.grab((0, 0, 1030, 745))
+  #  im.save('static/vin/' + area + "/" + vin_code + ".png")
+  #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
   
 
 def search_applicability_in_current_area(catalog_number):
@@ -230,7 +225,7 @@ for item in ps.listen():
   #pdb.set_trace()
   data = json.loads(item['data'])
   print data
-  #print ''
+  print ''
   
   manufacturer = data['data']['data']['manufacturer']
   catalog_number = data['data']['data']['catalog_number']  
@@ -238,22 +233,32 @@ for item in ps.listen():
   
   if manufacturer == "TOYOTA":
     if caps == "Toyota EPC":
-      area = data['area']
-      command = data['command']
-      key = "lock:%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, area)
-      print key
-      if(rs.setnx(key, 1)):
-        rs.expire(key, 10)
-        
-        check_or_start_toyota_epc()
-        in_each_region(search_applicability_in_current_area, catalog_number)
-        #post_process_allow_origin(jsonify(time=str(catalog_number)))
-        
+      logging.debug('Проверяем, есть ли на этой машине Toyota EPC.')
+      if config['Toyota EPC']['present']:
+        logging.debug('Судя по настройке в конфиге - есть')
+        area = data['area']
+        command = data['command']
+        key = "%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, area)
+        logging.debug('Ключ lock:' + str(key))
+        if(rs.setnx('lock:' + key, 1)):
+          rs.expire('lock:' + key, 10)
+          if command == 'applicability':
+            check_or_start_toyota_epc()
+            choose_region(area)
+            search_applicability_in_current_area(catalog_number)
+            #post_process_allow_origin(jsonify(time=str(catalog_number)))
+          if command == 'images etc... ':
+            pass
+          if command == 'substitution etc...':
+            pass
+          if command == 'procurement...':
+            pass
+
     elif caps == "Tecdoc":
-    
+      '''
       check_or_start_tectdoc()
       i = 0        
-
+      
       while True:
         try:
           logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен, ищем его') 
@@ -333,7 +338,7 @@ for item in ps.listen():
           print 'wertswg'
 
         i = i + 0.3
-          
+      '''    
       
   elif manufacturer == "MITSUBISHI":
     pass

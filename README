@@ -73,24 +73,37 @@ http://pypi.python.org/pypi?%3Aaction=search&term=redis&submit=search
 
 INSTALL
 
-Переменные окружения:
-PATH C:\Python27;C:\Python27\Scripts
-PYTHONPATH C:\opencv\build\python\2.7
-# C:\MinGW\bin (Не уверен, что этот автоматически прописывается)
-
-Скачать/устновить:
-git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
-mingw 20111118 http://sourceforge.net/projects/mingw/files/latest/download?source=files
-Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
-setuptools 0.6c11 http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
-#> easy_install pip
-numpy 1.6.1 http://sourceforge.net/projects/numpy/files/NumPy/1.6.1/numpy-1.6.1-win32-superpack-python2.7.exe/download
-scipy 0.10.1 http://sourceforge.net/projects/scipy/files/scipy/0.10.1/scipy-0.10.1-win32-superpack-python2.7.exe/download
-pywin32 216 http://sourceforge.net/projects/pywin32/files/pywin32/Build216/pywin32-216.win32-py2.7.exe/download
-pil 1.1.7 http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe
-#> pip install juggernaut # juggernaut 0.2, redis 2.4.11
-#> pip install pyscreenshot # 0.2.2, yapsi 1.8
-#> pip install flask
-
-
+01. git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
+02. mingw 20111118 http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe/download
+03. Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
+04. setuptools 0.6c11 http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
+05. numpy 1.6.1 http://sourceforge.net/projects/numpy/files/NumPy/1.6.1/numpy-1.6.1-win32-superpack-python2.7.exe/download
+06. scipy 0.10.1 http://sourceforge.net/projects/scipy/files/scipy/0.10.1/scipy-0.10.1-win32-superpack-python2.7.exe/download
+07. pywin32 216 http://sourceforge.net/projects/pywin32/files/pywin32/Build216/pywin32-216.win32-py2.7.exe/download
+08. pil 1.1.7 http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe
+09. Переменная окружения PATH C:\Python27;C:\Python27\Scripts
+10. #> easy_install pip
+11. #> pip install juggernaut # juggernaut 0.2, redis 2.4.11
+12. #> pip install pyscreenshot # 0.2.2, yapsi 1.8
+13. opencv 2.3.1 http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.3.1/OpenCV-2.3.1-win-superpack.exe/download
+  a) Распаковывать в c:\
+14. cmake 2.8.7 http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.exe  
+15. Переменная окружения PATH C:\MinGW\bin
+  a) mingw-get install gcc g++ mingw32-make (Не уверен что нужно делать)
+  b) Запустить Cmake gui
+  c) Where is source code - C:/opencv
+  d) Where to build binaries - ??? (Вроде указывал build)
+  e) Configure
+    Выбрать MinGW
+  f) Configure (Повторно?!)
+  g) Generate
+  h) В папке ... выполнить mingw32-make
+16. Git GUI
+  1) Помощь
+  2) Создать клч
+  3) Отправить мне
+  a) Склонировать
+  b) источник git@github.com:woto/EPC.git
+  с) назначение C:\EPC
+XX. Переменная окружения PYTHONPATH C:\opencv\build\python\2.7
 ----
