@@ -132,6 +132,7 @@ def choose_region(area):
     'Japan': {'blue_point_y': 200}
   }
   
+  logging.debug("Вызываем метод выхода в главное меню")
   goto_main_menu_toyota_epc()
   logging.debug("Теперь мы точно знаем, что находимся в главном меню, обрабатываемый регион " + str(area))
   
@@ -167,6 +168,7 @@ def choose_region(area):
   sleep = 0.1
   
   while True:
+    logging.debug("Зашли в цикл проверки факта выделения и соответствующего поиска синенькой полоски")
     try:
       time.sleep(sleep) # Обязательно
       click(130, areas[area]['blue_point_y'])
@@ -186,14 +188,13 @@ def choose_region(area):
       logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
       time.sleep(sleep)
 
+  logginge.debug("Отправляем F8 - выбор и закрытие окна выбора региона")
   wsh.SendKeys("{F8}")
-  #TODO пока что это в зависимости от нужды и работоспособности, (потому что кажется можно обойтись банальным слипом) оставлю или изменю позже
-  # сейчас же разбираюсь с корректностью открытия поиска подходящих модеделей по детали и видимо окно не успевает закрыться до того момента, как мы уже 
-  # пытаемся щелкнуть на кнопке вызывающем окно поиска подходящих моделей
+  #TODO пока что это в зависимости от нужды и работоспособности, (потому что кажется можно обойтись банальным слипом) оставлю или изменю позже сейчас же разбираюсь с корректностью открытия поиска подходящих модеделей по детали и видимо окно не успевает закрыться до того момента, как мы уже пытаемся щелкнуть на кнопке вызывающем окно поиска подходящих моделей
+
+  logging.debug("Вызываем метод выхода в главное меню непосредственно после выбора региона")
   goto_main_menu_toyota_epc()
   
-  #if (some_method(vin_code) == True):
-  #  im = ImageGrab.grab((0, 0, 1030, 745))
   #  im.save('static/vin/' + area + "/" + vin_code + ".png")
   #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
   
@@ -222,6 +223,7 @@ def search_applicability_in_current_area(catalog_number):
       coords = False
       
       logging.debug('Ищем Enter part numbers and press F10 key')   
+      pdb.set_trace()
       coords = find_match(False, ['Enter part numbers and press F10 key.png'], (389, 692, 397, 702), 100, True)
       if coords:
         logging.debug('Теперь мы точно уверены, что окно поиска моделей по каталожному номеру открыто, т.к. нашли Enter part numbers and press F10 key')
@@ -238,11 +240,11 @@ def search_applicability_in_current_area(catalog_number):
     # TODO опять же, этот блок скопирован с старого раздела поиска по вин коду, потом возможно вынесу просто в метод.
     logging.debug("Магия с раскладкой")
     win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
-    logging.debug("Спим")
+    logging.debug("Спим перед набором каталожного номера")
     time.sleep(0.2)
     logging.debug("Печатаем каталожный номер " + str(catalog_number))
     wsh.SendKeys(str(catalog_number))
-    logging.debug("Спим")
+    logging.debug("Спим перед нажатием на Entrer")
     time.sleep(0.2)
     logging.debug("Жмем Enter")
     wsh.SendKeys("{ENTER}")
@@ -260,10 +262,10 @@ def search_applicability_in_current_area(catalog_number):
       
       coords = find_match(False, ['images/Toyota EPC/Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 703), 100, False)
       if coords:
-        print coords
+        #print coords
         logging.debug("Получили список подходящих моделей")
 
-        print 'start: ' + str(time.time())
+        #print 'start: ' + str(time.time())
 
         acummulator = []
         #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
@@ -273,7 +275,7 @@ def search_applicability_in_current_area(catalog_number):
         cv.SetData(img, im.tostring(), im.size[0]*3)
         cv.CvtColor(img, img, cv.CV_RGB2BGR)  
 
-        # Ищем серые полоски, а точнее точки - разделители (как выяснилось высота строк разнится)
+        logging.debug("Ищем серые полоски, а точнее точки - разделители (как выяснилось высота строк разнится)")
         cv.SetImageROI(img, (0, 0, 1, 673))
         tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_COLOR)
         res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
@@ -284,16 +286,16 @@ def search_applicability_in_current_area(catalog_number):
           if s[0] <= 10:
             lines.append(y)
         cv.ResetImageROI(img)
-        '''
-        # y - 352 - начальная позиция перед серой полоской первого элемента
-        # y - 672 - непосредственно сразу после серой полоской последнего элемента
-        # 32 - шаг
-        for block in linesrange(352, 672, 32):
-          for line in range(2):
-            if(line == 0):
-              skip_y = 2
-            elif(line == 1):
-              skip_y = 18
+
+        for y1, y2 in pairwise(a):
+          #print y1 + ":" + y2
+
+
+
+
+            # y - 352 - начальная позиция перед серой полоской первого элемента
+            # y - 672 - непосредственно сразу после серой полоской последнего элемента
+            # 32 - шаг
 
             for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), ('.', 'Point'))):
 
@@ -301,7 +303,7 @@ def search_applicability_in_current_area(catalog_number):
               # block+1 (пропускаем красный пунктир)
               # строго высота шрифта - 12
               # 991 - не доходим до пунктира справа
-              cv.SetImageROI(img, (20, block+skip_y, 991, 12))
+              cv.SetImageROI(img, (20, y1, 991, y2))
 
               tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
               res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
@@ -313,7 +315,7 @@ def search_applicability_in_current_area(catalog_number):
                   s = cv.Get2D(res, y, x)
                   if s[0] <= 10:
                     #print element[0]
-                    acummulator.append({'x': x, 'y': y+block+skip_y, 'letter': element[0]})
+                    acummulator.append({'x': x, 'y': y+y1, 'letter': element[0]})
                     #print x, y 
                     #if debug:
                     #cv.Rectangle(img,
@@ -329,7 +331,7 @@ def search_applicability_in_current_area(catalog_number):
                     ##cv.ShowImage('template', tpl)
                   x = x + tpl.width
                 y = y + tpl.width
-        '''
+
         time.sleep(0.1)
         
         logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
