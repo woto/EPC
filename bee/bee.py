@@ -6,9 +6,6 @@ from config import *
 import win32com.client as comclt
 
 from functools import partial
-from flask import Flask, jsonify, request
-from werkzeug.exceptions import default_exceptions, HTTPException
-from werkzeug.datastructures import Headers
 import shutil
 import subprocess
 import Image
@@ -28,7 +25,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\
                     filename='../logs/application.log')
 key = ''
 
-rs = redis.Redis('192.168.2.7')
+rs = redis.Redis(config['Redis'])
 
 ps = rs.pubsub()
 ps.subscribe('bee')
