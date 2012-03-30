@@ -73,6 +73,15 @@ http://pypi.python.org/pypi?%3Aaction=search&term=redis&submit=search
 
 INSTALL
 
+1. Имя учетной записи обязательно на английском языке
+2. Оформление - Классическая
+3. Linux Ubuntu-1110-oneiric-32-minimal 3.0.0-12-generic-pae #20-Ubuntu SMP Fri Oct 7 16:37:17 UTC 2011 i686 i686 i386 GNU/Linux
+4. vboxheadless -s "winxsp3"
+5. virtualbox-4.1_4.1.10-76795~Ubuntu~oneiric_i386.deb
+6. phpvirtualbox-4.1-7
+7. rdesktop
+
+
 01. git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
 02. mingw 20111118 http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe/download
 03. Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
