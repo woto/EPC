@@ -17,6 +17,7 @@ import win32api, win32con
 import time, math, random, pdb
 import win32com.client as comclt
 from seed_vin import *
+from juggernaut import Juggernaut
 
 
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\' at line %(lineno)d: %(message)s', 
@@ -26,7 +27,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\
 key = ''
 
 rs = redis.Redis(config['Redis'])
-
+jug = Juggernaut(rs)
 ps = rs.pubsub()
 ps.subscribe('bee')
 
@@ -188,7 +189,7 @@ def choose_region(area):
       logging.debug("Спим " + str(sleep) + " с. перед следущей итерацией проверки факта того что мы щелкнули на базе заранее известных координат синих точек")
       time.sleep(sleep)
 
-  logginge.debug("Отправляем F8 - выбор и закрытие окна выбора региона")
+  logging.debug("Отправляем F8 - выбор и закрытие окна выбора региона")
   wsh.SendKeys("{F8}")
   #TODO пока что это в зависимости от нужды и работоспособности, (потому что кажется можно обойтись банальным слипом) оставлю или изменю позже сейчас же разбираюсь с корректностью открытия поиска подходящих модеделей по детали и видимо окно не успевает закрыться до того момента, как мы уже пытаемся щелкнуть на кнопке вызывающем окно поиска подходящих моделей
 
@@ -199,7 +200,7 @@ def choose_region(area):
   #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
   
 
-def search_applicability_in_current_area(catalog_number):
+def search_applicability_in_current_area(catalog_number, cookie):
   
   # TODO этот блок скопирован с блока открытия окна выбора регионов
 
@@ -219,12 +220,9 @@ def search_applicability_in_current_area(catalog_number):
       wmgr.set_foreground(False, False, False)
       logging.debug('Нашли окно TOYOTA...Part Number Application to Models, сделали его активным')
       
-      #TODO непонятно как это вообще работает
-      coords = False
       
       logging.debug('Ищем Enter part numbers and press F10 key')   
-      pdb.set_trace()
-      coords = find_match(False, ['Enter part numbers and press F10 key.png'], (389, 692, 397, 702), 100, True)
+      coords = find_match(False, ['images/Toyota EPC/Enter part numbers and press F10 key.png'], (389, 692, 397, 703), 100, False)
       if coords:
         logging.debug('Теперь мы точно уверены, что окно поиска моделей по каталожному номеру открыто, т.к. нашли Enter part numbers and press F10 key')
         break
@@ -235,156 +233,155 @@ def search_applicability_in_current_area(catalog_number):
       sleep = sleep + 0.1
       logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией поиска окна поиска моделей по каталожному номеру")
       time.sleep(sleep)
+  
+  
+  # TODO опять же, этот блок скопирован с старого раздела поиска по вин коду, потом возможно вынесу просто в метод.
+  logging.debug("Магия с раскладкой")
+  win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
+  logging.debug("Спим перед набором каталожного номера")
+  time.sleep(0.2)
+  logging.debug("Печатаем каталожный номер " + str(catalog_number))
+  wsh.SendKeys(str(catalog_number))
+  logging.debug("Спим перед нажатием на Entrer")
+  time.sleep(0.2)
+  logging.debug("Жмем Enter")
+  wsh.SendKeys("{ENTER}")
+  logging.debug("Жмем F10")
+  wsh.SendKeys("{F10}")
+  logging.debug("Вбили каталожный номер, нажали Enter и F10")
+  
+  while True:
+    time.sleep(0.3)
+    logging.debug("Вертимся в цикле поиска подходящих моделей.")
+    # TODO херня какая-то, должно быть 702, а работает только с 703 :\
+    # выяснил, ошибки в размерах нет, это так работает метод opencv, обязательно потом хочу попробовать
+    # выяснить проблему и решить. Пока можно обходить ситуацию заданием чуть большего размера.
+    # Кстати интересно, что с буквами у меня такой ситуации не возникало
     
-    
-    # TODO опять же, этот блок скопирован с старого раздела поиска по вин коду, потом возможно вынесу просто в метод.
-    logging.debug("Магия с раскладкой")
-    win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
-    logging.debug("Спим перед набором каталожного номера")
-    time.sleep(0.2)
-    logging.debug("Печатаем каталожный номер " + str(catalog_number))
-    wsh.SendKeys(str(catalog_number))
-    logging.debug("Спим перед нажатием на Entrer")
-    time.sleep(0.2)
-    logging.debug("Жмем Enter")
-    wsh.SendKeys("{ENTER}")
-    logging.debug("Жмем F10")
-    wsh.SendKeys("{F10}")
-    logging.debug("Вбили каталожный номер, нажали Enter и F10")
-    
-    while True:
-      time.sleep(0.3)
-      logging.debug("Вертимся в цикле поиска подходящих моделей.")
-      # TODO херня какая-то, должно быть 702, а работает только с 703 :\
-      # выяснил, ошибки в размерах нет, это так работает метод opencv, обязательно потом хочу попробовать
-      # выяснить проблему и решить. Пока можно обходить ситуацию заданием чуть большего размера.
-      # Кстати интересно, что с буквами у меня такой ситуации не возникало
+    coords = find_match(False, ['images/Toyota EPC/Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 703), 100, False)
+    if coords:
+      #print coords
+      logging.debug("Получили список подходящих моделей")
+
+      #print 'start: ' + str(time.time())
+
+      #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
       
-      coords = find_match(False, ['images/Toyota EPC/Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 703), 100, False)
+      im = ImageGrab.grab((16, 351, 998, 673))
+      img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+      cv.SetData(img, im.tostring(), im.size[0]*3)
+      cv.CvtColor(img, img, cv.CV_RGB2BGR)  
+
+      logging.debug("Ищем серые полоски, а точнее точки - разделители (как выяснилось высота строк разнится)")
+      cv.SetImageROI(img, (0, 0, 1, 673))
+      tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_COLOR)
+      res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
+      cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)  
+      lines = []
+      for y in range(0, res.height):
+        s = cv.Get2D(res, y, 0)
+        if s[0] <= 10:
+          lines.append(y)
+      cv.ResetImageROI(img)
+
+      #pdb.set_trace()
+      logging.debug("Найденные полоски " + str(lines))
+      for y1, y2 in pairwise(lines):
+          accumulator = []
+          logging.debug("Крутимся в цилке прохода по линейкам")
+          logging.debug("y1: " + str(y1) + " y2: " + str(y2))
+          cv.SetImageROI(img, (10, y1, 991, y2-y1))
+          
+          for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), ('.', 'Point'))):
+            tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
+            
+            # Можно было бы эту проверку вынести вверх, учитывая, что в данном случае высота шрифта постоянная,
+            # но... ради потомков :)
+            if y2 - y1 < tpl.height:
+              break
+              
+            res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
+            cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
+
+            for y in range(0, res.height):
+              for x in range(0, res.width):
+                #print x, y
+                s = cv.Get2D(res, y, x)
+                if s[0] <= 10:
+                  #print element[0]
+                  accumulator.append({'x': x, 'y': y+y1, 'letter': element[0]})
+                  #print x, y 
+                  #if debug:
+                  #cv.Rectangle(img,
+                  #    (x, y+block),
+                  #    (x+tpl.width-1, y+tpl.height-1),
+                  #cv.Scalar(255, 255, 255, 255), cv.CV_FILLED)
+
+                  #cv.ResetImageROI(img)
+
+                  #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+                  ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
+                  #cv.ShowImage('image', img)
+                  ##cv.ShowImage('template', tpl)
+                x = x + tpl.width
+              y = y + tpl.width
+
+      time.sleep(0.1)
+      
+      #print time.time()
+      #cv.DestroyWindow('template')
+
+      #for f, s in pairs(accumulator):
+      #  print s['letter'],
+
+      #cv.ResetImageROI(img)
+
+      #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+      ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
+      #cv.ShowImage('image', img)
+      ##cv.ShowImage('template', tpl)
+      #
+      #cv.WaitKey(0)
+
+      #cv.DestroyWindow('image')
+      print accumulator
+      if len(accumulator) > 0:
+        tmp = ''
+        accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
+        #accumulator = sorted(accumulator, key=lambda k: k['x']) 
+        for i, letter in enumerate(accumulator):
+          if((letter['x'] - accumulator[i-1]['x']) > 10):
+            tmp += "&nbsp;" 
+            #sys.stdout.write('\t')
+          if((letter['x'] - accumulator[i-1]['x']) < 0):
+            tmp += "<br />"
+            #print ''
+          tmp += letter['letter']
+          #sys.stdout.write(letter['letter'])
+          
+        jug.publish(cookie, tmp)      
+        #print '' 
+        #print '' 
+        #print 'end ' + str(time.time())        
+      
+      #break      
+      
+      logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
+      coords = find_match(False, ['images/Toyota EPC/Scroll down.png'], (1005, 653, 1006, 673), 100, False)
+    
       if coords:
-        #print coords
-        logging.debug("Получили список подходящих моделей")
-
-        #print 'start: ' + str(time.time())
-
-        acummulator = []
-        #img = cv.LoadImage(file_name, cv.CV_LOAD_IMAGE_COLOR)
-        
-        im = ImageGrab.grab((16, 351, 998, 673))
-        img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
-        cv.SetData(img, im.tostring(), im.size[0]*3)
-        cv.CvtColor(img, img, cv.CV_RGB2BGR)  
-
-        logging.debug("Ищем серые полоски, а точнее точки - разделители (как выяснилось высота строк разнится)")
-        cv.SetImageROI(img, (0, 0, 1, 673))
-        tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_COLOR)
-        res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
-        cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)  
-        lines = []
-        for y in range(0, res.height):
-          s = cv.Get2D(res, y, 0)
-          if s[0] <= 10:
-            lines.append(y)
-        cv.ResetImageROI(img)
-
-        for y1, y2 in pairwise(a):
-          #print y1 + ":" + y2
-
-
-
-
-            # y - 352 - начальная позиция перед серой полоской первого элемента
-            # y - 672 - непосредственно сразу после серой полоской последнего элемента
-            # 32 - шаг
-
-            for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), ('.', 'Point'))):
-
-              # Вторые координаты задаются как относительные
-              # block+1 (пропускаем красный пунктир)
-              # строго высота шрифта - 12
-              # 991 - не доходим до пунктира справа
-              cv.SetImageROI(img, (20, y1, 991, y2))
-
-              tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_COLOR)
-              res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
-              cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
-
-              for y in range(0, res.height):
-                for x in range(0, res.width):
-                  #print x, y
-                  s = cv.Get2D(res, y, x)
-                  if s[0] <= 10:
-                    #print element[0]
-                    acummulator.append({'x': x, 'y': y+y1, 'letter': element[0]})
-                    #print x, y 
-                    #if debug:
-                    #cv.Rectangle(img,
-                    #    (x, y+block),
-                    #    (x+tpl.width-1, y+tpl.height-1),
-                    #cv.Scalar(255, 255, 255, 255), cv.CV_FILLED)
-
-                    #cv.ResetImageROI(img)
-
-                    #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-                    ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
-                    #cv.ShowImage('image', img)
-                    ##cv.ShowImage('template', tpl)
-                  x = x + tpl.width
-                y = y + tpl.width
-
-        time.sleep(0.1)
-        
-        logging.debug("Проверяем, а нет ли случайно скролла в результатах поиска")
-        coords = find_match(False, ['images/Toyota EPC/Scroll down.png'], (1005, 653, 1006, 673), 100, False)
+        logging.debug("Действительно, есть, щелкаем по нему")
+        click(1005, 656)
+        continue
       
-        if coords:
-          logging.debug("Действительно, есть, щелкаем по нему")
-          click(1005, 656)
-          continue
-        
-        return
-        #print time.time()
-        #cv.DestroyWindow('template')
-
-        #for f, s in pairs(acummulator):
-        #  print s['letter'],
-
-        #cv.ResetImageROI(img)
-
-        #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-        ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
-        #cv.ShowImage('image', img)
-        ##cv.ShowImage('template', tpl)
-        #
-        #cv.WaitKey(0)
-
-        #cv.DestroyWindow('image')
-
-        #pdb.set_trace()
-
-        acummulator = sorted(sorted(acummulator, key=lambda k: k['x']), key=lambda k: k['y'])
-        #accumulator = sorted(acummulator, key=lambda k: k['x']) 
-        for i, letter in enumerate(acummulator):
-          if((letter['x'] - acummulator[i-1]['x']) > 10):
-            sys.stdout.write('\t')
-          if((letter['x'] - acummulator[i-1]['x']) < 0):
-            print ''
-          sys.stdout.write(letter['letter'])
-        print '' 
-        print '' 
-        print 'end ' + str(time.time())        
-        
-        break
-      
-      # TODO Тут блок, в котором надо проверить ситуацию в случае если модели не найдены
-      #coords = find_match(False, ['Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 702), 100, False)
-      #if coords:
-      #  logging.debug("Получили список подходящих моделей")
-      #  find_app()
-      #  break      
-      
-    break
-  pass
+      return
+    
+    # TODO Тут блок, в котором надо проверить ситуацию в случае если модели не найдены
+    #coords = find_match(False, ['Select the next function by pressing an approriate PF key.png'], (326, 691, 334, 702), 100, False)
+    #if coords:
+    #  logging.debug("Получили список подходящих моделей")
+    #  find_app()
+    #  break
   
 
   
@@ -416,6 +413,7 @@ for item in ps.listen():
   manufacturer = data['data']['data']['manufacturer']
   catalog_number = data['data']['data']['catalog_number']  
   caps = data['caps']
+  cookie = data['data']['data']['cookie']
   
   if manufacturer == "TOYOTA":
     if caps == "Toyota EPC":
@@ -427,12 +425,12 @@ for item in ps.listen():
         key = "%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, area)
         logging.debug('Ключ lock:' + str(key))
         if(rs.setnx('lock:' + key, 1)):
-          rs.expire('lock:' + key, 10)
+          rs.expire('lock:' + key, 1000)
           if command == 'applicability':
             check_or_start_toyota_epc()
             choose_region(area)
             print str(catalog_number)
-            search_applicability_in_current_area(catalog_number)
+            search_applicability_in_current_area(catalog_number, cookie)
             #post_process_allow_origin(jsonify(time=str(catalog_number)))
           if command == 'images etc... ':
             pass

@@ -1,7 +1,6 @@
 import pyscreenshot as ImageGrab
 import win32api, win32con
-import cv
-
+from itertools import izip, tee
 import cv
 import pyscreenshot as ImageGrab
 

@@ -69,7 +69,7 @@ class WindowMgr:
         #    win32gui.SetFocus(self._handle[element])
 
         else:
-            print 'start ' + str(self._handle[element]) + ' ' + self._title[element]
+            #print 'start ' + str(self._handle[element]) + ' ' + self._title[element]
             
             """
             Для Toyota EPC
@@ -84,4 +84,4 @@ class WindowMgr:
             win32gui.SetWindowPos(self._handle[element], win32con.HWND_TOP, 0, 0, 0, 0, win32con.SWP_NOSIZE)            
             win32gui.SetFocus(self._handle[element])            
             win32gui.SetForegroundWindow(self._handle[element])
-            print 'end'
+            #print 'end'
