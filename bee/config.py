@@ -26,5 +26,5 @@
       'path': 'C:\MMC\ASA\M60\PROG\ASA.exe'
     }
   },
-  'Redis': '192.168.2.3'
+  'Redis': '192.168.2.6'
 }

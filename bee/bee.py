@@ -423,6 +423,205 @@ def check_or_start_tecdoc():
 
 
 wsh = comclt.Dispatch("WScript.Shell")  
+
+def collect_all_models():
+  for area in ('Europe', 'General', 'USA, Canada', 'Japan'):
+    choose_region(area)
+    
+    logging.debug("Следующим шагом будет заход в цикл щелканья на TMC Part Number Translation")
+    while True:
+      logging.debug("Спим 0.1 перед щелчком на TMC Part Number Translation")
+      time.sleep(0.1)
+      click(265, 148)
+      logging.debug("Спим 0.5 после щелчка")
+      time.sleep(0.5)
+      logging.debug("Поспали, проверяем наличие буковки S на кнопке Search")
+      coords = find_match(None, ['images/Toyota EPC/S from Search button.png'], (424, 308, 494, 323), 100, False)
+      if coords:
+        logging.debug("Нашли")
+        break
+    
+    found = False
+    
+    logging.debug("Следующим шагом будет заход в цикл щелканья на Search")
+    while True:
+      logging.debug("Вращаемся в цикле щелканья на Search")
+      if (found == True):
+        logging.debug("Found == True, означает, что результаты были найдены предыдущей итерации, выходим из цикла")
+        break
+      
+      logging.debug("Спим 0.1")
+      time.sleep(0.1)
+      click(459, 316)
+      logging.debug("Щелкнули на Search")
+
+      img_prv = diff = None
+      
+      logging.debug("Следующим шагом заходим в цикл вращения по результатам")
+      while True:
+
+        logging.debug("Вращаемся в цикле прохода по результатам")
+        im = ImageGrab.grab((16, 79, 997, 673))
+        im = im.convert("RGB")
+        
+        # Красим
+        pixdata = im.load()
+        for y in xrange(im.size[1]):
+          for x in xrange(im.size[0]):
+            if (pixdata[980, y] == (10, 36, 106)):
+              if pixdata[x, y] == (255, 255, 255):
+                pixdata[x, y] = (0, 0, 0)
+              elif pixdata[x, y] != (141, 138, 133) and pixdata[x, y] != (0, 0, 0):
+                pixdata[x, y] = (255, 255, 255)
+            else:
+              if (pixdata[x, y] != (141, 138, 133) and pixdata[x, y] != (0, 0, 0)):
+                pixdata[x, y] = (255, 255, 255)
+
+        #cv_img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+        #cv.SetData(cv_img, im.tostring(), im.size[0]*3)
+        #cv.CvtColor(cv_img, cv_img, cv.CV_RGB2BGR)              
+
+        #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+        #cv.ShowImage('image', cv_img)          
+        #cv.WaitKey(0)
+
+        img_rgb = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
+        cv.SetData(img_rgb, im.tostring(), im.size[0]*3)
+        img = cv.CreateImage((981, 594), cv.IPL_DEPTH_8U, 1)
+        cv.CvtColor(img_rgb, img, cv.CV_RGB2GRAY)  
+        
+        #cv.NamedWindow('img', cv.CV_WINDOW_AUTOSIZE)
+        #cv.ShowImage('img', img)
+        #cv.WaitKey(0)   
+        
+        if img_prv:
+          cv.AbsDiff(img, img_prv, diff)
+          if (cv.CountNonZero(diff) == 0): 
+            break
+            
+          #cv.NamedWindow('diff', cv.CV_WINDOW_AUTOSIZE)
+          #cv.ShowImage('diff', diff)
+          #cv.WaitKey(0)
+
+        diff = cv.CloneImage(img)
+        img_prv = cv.CloneImage(img)
+        
+        cv.SetImageROI(img, (0, 0, 1, img.height))
+        
+        #cv.NamedWindow('img', cv.CV_WINDOW_AUTOSIZE)
+        #cv.ShowImage('img', img)
+        #cv.WaitKey(0)           
+        
+        tpl = cv.LoadImage('images/Toyota EPC/Search result delimiter point.png', cv.CV_LOAD_IMAGE_GRAYSCALE)
+        res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
+        cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)  
+        lines = []
+        for y in range(0, img.height):
+          s = cv.Get2D(res, y, 0)
+          if s[0] <= 10:
+            lines.append(y)
+            found = True
+        cv.ResetImageROI(img)
+          
+        if found:
+          for y1, y2 in pairwise(lines):
+            click(229, y1+10+79)
+            accumulator = []
+            #pdb.set_trace()
+            # TODO должно быть 3 11
+            cv.SetImageROI(img, (0, y1+1, 981, 15))
+
+            #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+            #cv.ShowImage('image', img)
+            #cv.WaitKey(0)
+
+            for element, first in pairs((('0', '0'), ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F'), ('G', 'G'), ('H', 'H'), ('I', 'I'), ('J', 'J'), ('K', 'K'), ('L', 'L'), ('M', 'M'), ('N', 'N'), ('O', 'O'), ('P', 'P'), ('Q', 'Q'), ('R', 'R'), ('S', 'S'), ('T', 'T'), ('U', 'U'), ('V', 'V'), ('W', 'W'), ('X', 'X'), ('Y', 'Y'), ('Z', 'Z'), ('(', 'Open Bracket'), (')', 'Close Bracket'), (',', 'Comma'), ('#', 'Octothorpe'), ('-', 'Hyphen'), ('/', 'Slash'), (' | ', 'Delimiter'), ('.', 'Point'))):
+              tpl = cv.LoadImage('images/Toyota EPC/Fonts/Main Font/' + str(element[1]) + '.png', cv.CV_LOAD_IMAGE_GRAYSCALE)
+                    
+              res = cv.CreateImage((cv.GetImageROI(img)[2] - tpl.width + 1, cv.GetImageROI(img)[3] - tpl.height + 1), cv.IPL_DEPTH_32F, 1)
+              cv.MatchTemplate(img, tpl, res, cv.CV_TM_SQDIFF)
+
+              for y in range(0, res.height):
+                for x in range(0, res.width):
+                  #print x, y
+                  s = cv.Get2D(res, y, x)
+                  #print s[0]
+                  if s[0] <= 20:
+                    #print element[0]
+                    accumulator.append({'x': x, 'y': y, 'letter': element[0]})
+                    #print x, y 
+                    #if debug:
+                    cv.Rectangle(img,
+                      (x, y),
+                      (x+tpl.width-1, y+tpl.height-1),
+                    cv.Scalar(255, 255, 255, 255), cv.CV_FILLED)
+                    #cv.ResetImageROI(img)
+
+                    #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+                    ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
+                    #cv.ShowImage('image', img)
+                    #cv.WaitKey(0)
+                    ##cv.ShowImage('template', tpl)
+                  x = x + tpl.width
+                y = y + tpl.width
+
+                #time.sleep(0.1)
+                
+                #print time.time()
+                #cv.DestroyWindow('template')
+
+                #for f, s in pairs(accumulator):
+                #  print s['letter'],
+
+                #cv.ResetImageROI(img)
+
+                #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+                ##cv.NamedWindow('template', cv.CV_WINDOW_AUTOSIZE)
+                #cv.ShowImage('image', img)
+                ##cv.ShowImage('template', tpl)
+                #
+                #cv.WaitKey(0)
+
+                #cv.DestroyWindow('image')
+
+            if len(accumulator) > 0:
+              tmp = ['']
+              idx = 0
+              accumulator = sorted(sorted(accumulator, key=lambda k: k['x']), key=lambda k: k['y'])
+              #accumulator = sorted(accumulator, key=lambda k: k['x'])
+              for i, letter in enumerate(accumulator):
+                if((letter['x'] - accumulator[i-1]['x']) > 10):
+                  tmp[idx] += " " 
+                  #sys.stdout.write('\t')
+                if((letter['y'] > accumulator[i-1]['y'])):
+                  idx = 0
+                if(letter['letter'] == ' | '):
+                  #pdb.set_trace()
+                  tmp[idx] += ' '
+                  idx += 1
+                  tmp.append('')
+                  continue
+                
+                tmp[idx] += letter['letter']
+                #sys.stdout.write(letter['letter'])
+                 
+              print tmp
+
+          for i in range(0, 25):
+            click(1005, 665)
+          
+        
+          #jug.publish(cookie, str(filter(len, tmp)) + "<br />")
+            #pdb.set_trace()
+            #print tmp 
+            #print '' 
+            #print 'end ' + str(time.time())
+            
+      logging.debug("Спим 0.5")
+      time.sleep(0.5)
+        
+
+collect_all_models()
   
 for item in ps.listen():
   #pdb.set_trace()
