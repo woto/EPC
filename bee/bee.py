@@ -364,7 +364,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
           #accumulator = sorted(accumulator, key=lambda k: k['x'])
           for i, letter in enumerate(accumulator):
             if((letter['x'] - accumulator[i-1]['x']) > 10):
-              tmp[idx] += "&nbsp;" 
+              tmp[idx] += "|" 
               #sys.stdout.write('\t')
             if((letter['y'] > accumulator[i-1]['y'])):
               idx = 0
@@ -378,6 +378,7 @@ def search_applicability_in_current_area(catalog_number, cookie):
             tmp[idx] += letter['letter']
             #sys.stdout.write(letter['letter'])
             
+          tmp = [x.strip() for x in tmp]
           jug.publish(cookie, str(filter(len, tmp)) + "<br />")
           #pdb.set_trace()
           #print tmp 
@@ -604,8 +605,10 @@ def collect_all_models():
                 
                 tmp[idx] += letter['letter']
                 #sys.stdout.write(letter['letter'])
-                 
-              print tmp
+              
+              #tmp = filter(lambda item: item.strip(), tmp) # fastest
+              print [x.strip() for x in tmp]
+              #print tmp
 
           for i in range(0, 25):
             click(1005, 665)
@@ -621,7 +624,7 @@ def collect_all_models():
       time.sleep(0.5)
         
 
-collect_all_models()
+#collect_all_models()
   
 for item in ps.listen():
   #pdb.set_trace()
