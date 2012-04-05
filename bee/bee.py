@@ -352,19 +352,19 @@ def search_applicability_in_current_area(catalog_number, cookie):
               
               tmp[idx] += letter['letter']
               #sys.stdout.write(letter['letter'])
-              
-            #pdb.set_trace()
             
-            #tmp[6] = tmp[6].replace(' ', '')
-            #tmp = [x.replace('   ', ' ') for x in tmp]
-            #tmp = [x.replace('  ', ' ') for x in tmp]
-            tmp = [x.strip() for x in tmp]
             
             # Этот способ возник после того, как я обнаружил, что полоска сверху рисуется всвегда, значит, вверху всегда будет
             # половинчатая полоска, если конечно на неё так попадет скролл, а следовательно мы получим только часть данных,
             # этого можно избежать, если убедиться в том, что в нулевом столбце присутствует порядковый номер, т.е. не пусто
+            tmp = [x.strip() for x in tmp]
             if (tmp[0] != ''):
-              jug.publish(cookie, str(filter(len, tmp)) + "<br />")
+              tmp[6] = tmp[6].replace(' ', '')
+              #tmp = [x.replace('   ', ' ') for x in tmp]
+              #tmp = [x.replace('  ', ' ') for x in tmp]
+              tmp = filter(len, tmp)
+              tmp = ["<td>" + x + "</td>" for x in tmp]
+              jug.publish(cookie, "<tr>" + str(tmp) + "</tr>")
       
         # TODO до сюда все проверил
         
@@ -844,7 +844,7 @@ for item in ps.listen():
             choose_region(area)
             #print str(catalog_number)
             
-            jug.publish(cookie, "<b>" + area + "</b><br />")
+            jug.publish(cookie, "<tr><td colspan='8'><strong>Region: " + area + "<strong></td></tr>")
             
             search_applicability_in_current_area(catalog_number, cookie)
             #post_process_allow_origin(jsonify(time=str(catalog_number)))
