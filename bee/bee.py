@@ -619,163 +619,167 @@ def collect_all_models():
       time.sleep(0.5)
         
 
-#collect_all_models()
-#goto_main_menu_toyota_epc()
-time.sleep(2)
+# #collect_all_models()
+# #goto_main_menu_toyota_epc()
+# time.sleep(2)
 
-#print time.time()
+# #print time.time()
 
-# Увеличиваем
-for i in range(5):
-  click(133, 725)
-  time.sleep(0.1)
+# # Увеличиваем
+# for i in range(6):
+  # click(133, 725)
+  # time.sleep(0.1)
   
-# Убираем Map
-click(386, 725)
-time.sleep(0.1)
+# # Убираем Map
+# click(386, 725)
+# time.sleep(0.1)
 
-# Жмем NoList
-#click(, 725)
+# # Жмем NoList
+# #click(, 725)
 
-tpl_pil = ImageGrab.grab((256, 156, 856, 656))
-tpl_cv = cv.CreateImageHeader(tpl_pil.size, cv.IPL_DEPTH_8U, 3)
-cv.SetData(tpl_cv, tpl_pil.tostring(), tpl_pil.size[0]*3)
-cv.CvtColor(tpl_cv, tpl_cv, cv.CV_RGB2BGR)
+# tpl_pil = ImageGrab.grab((256, 156, 856, 656))
+# tpl_cv = cv.CreateImageHeader(tpl_pil.size, cv.IPL_DEPTH_8U, 3)
+# cv.SetData(tpl_cv, tpl_pil.tostring(), tpl_pil.size[0]*3)
+# cv.CvtColor(tpl_cv, tpl_cv, cv.CV_RGB2BGR)
 
-#cv.NamedWindow('tpl_cv', cv.CV_WINDOW_AUTOSIZE)
-#cv.ShowImage('tpl_cv', tpl_cv)
-#cv.WaitKey(0)
+# #cv.NamedWindow('tpl_cv', cv.CV_WINDOW_AUTOSIZE)
+# #cv.ShowImage('tpl_cv', tpl_cv)
+# #cv.WaitKey(0)
 
-click(1012, 656)
-time.sleep(0.1)
+# click(1012, 656)
+# time.sleep(0.1)
 
-click(995, 673)
-time.sleep(0.1)
+# click(995, 673)
+# time.sleep(0.1)
 
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
-cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
-cv.CvtColor(img_cv, img_cv, cv.CV_RGB2BGR)
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
+# cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
+# cv.CvtColor(img_cv, img_cv, cv.CV_RGB2BGR)
 
-#cv.Rectangle(img_cv,
-#  (256-203, 156-120),
-#  (tpl_cv.width+256-203, tpl_cv.height+156-120),
-#cv.Scalar(0, 1, 0, 0))
+# #cv.Rectangle(img_cv,
+# #  (256-203, 156-120),
+# #  (tpl_cv.width+256-203, tpl_cv.height+156-120),
+# #cv.Scalar(0, 1, 0, 0))
 
-#cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-#cv.ShowImage('image', img_cv)
-#cv.WaitKey(0)
+# #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+# #cv.ShowImage('image', img_cv)
+# #cv.WaitKey(0)
 
-res = cv.CreateImage((img_cv.width - tpl_cv.width + 1, img_cv.height - tpl_cv.height + 1), cv.IPL_DEPTH_32F, 1)
-cv.MatchTemplate(img_cv, tpl_cv, res, cv.CV_TM_SQDIFF)
+# res = cv.CreateImage((img_cv.width - tpl_cv.width + 1, img_cv.height - tpl_cv.height + 1), cv.IPL_DEPTH_32F, 1)
+# cv.MatchTemplate(img_cv, tpl_cv, res, cv.CV_TM_SQDIFF)
 
-(minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
+# (minval, maxval, minloc, maxloc) = cv.MinMaxLoc(res)
 
-#print time.time()
+# #print time.time()
 
-#cv.Rectangle(img_cv, 
-#  (minloc[0], minloc[1]),
-#  (minloc[0] + tpl_cv.width, minloc[1] + tpl_cv.height),
-#cv.Scalar(0, 1, 0, 0))
+# #cv.Rectangle(img_cv, 
+# #  (minloc[0], minloc[1]),
+# #  (minloc[0] + tpl_cv.width, minloc[1] + tpl_cv.height),
+# #cv.Scalar(0, 1, 0, 0))
 
-x_rel = 256 - 203 - minloc[0]
-y_rel = 156 - 120 - minloc[1]
+# x_rel = 256 - 203 - minloc[0]
+# y_rel = 156 - 120 - minloc[1]
 
-print x_rel
-print y_rel
+# print x_rel
+# print y_rel
 
-#cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-#cv.ShowImage('image', img_cv)
+# #cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+# #cv.ShowImage('image', img_cv)
 
-#cv.WaitKey(0)
+# #cv.WaitKey(0)
 
-for i in range(5):
-  click(219, 673)
-  time.sleep(0.1)
+# for i in range(7):
+  # click(219, 673)
+  # time.sleep(0.1)
   
-for i in range(5):
-  click(1011, 136)
-  time.sleep(0.1)
+# for i in range(5):
+  # click(1011, 136)
+  # time.sleep(0.1)
 
 
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_pil.save('1.png')
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_pil.save('1.png')
 
-for i in range(((665-120)/20) - 1):
-  click(1012, 656)
-  time.sleep(0.1)
+# for i in range(((665-120)/20)):
+  # click(1012, 656)
+  # time.sleep(0.1)
 
-for i in range(((1004-203)/20) - 1):
-  click(995, 673)  
-  time.sleep(0.1)  
+# print ((665-120)/20)  
 
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_pil.save('2.png')  
-
-
-#for y in range(0, res.height):
-#  for x in range(0, res.width):
-#    s = cv.Get2D(res, y, x)
-#    #print s[0]
-#    if s[0] <= 200000:
-#      cv.Rectangle(img,
-#          (x, y),
-#          (x+tpl.width-1, y+tpl.height-1),
-#      cv.Scalar(0, 255, 255, 255), cv.CV_FILLED)
-#
-#      #cv.ResetImageROI(img)
-#
-#      cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
-#      cv.ShowImage('image', img)
-#      cv.WaitKey(0)
-#    #x = x + tpl_cv.width
-#  #y = y + tpl_cv.width
+# for i in range(((1004-203)/20) - 1):
+  # click(995, 673)  
+  # time.sleep(0.1)  
   
-sys.exit(-1)
+# print ((1004-203)/20)
 
-img_dst = cv.CreateImage((5000, 5000), cv.IPL_DEPTH_8U, 3)
-
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
-cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
-
-cv.SetImageROI(img_dst, (0, 0, 801, 545))
-cv.Copy(img_cv, img_dst)
-
-for i in range(21):
-  click(995, 673)
-time.sleep(0.1)
-
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
-cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
-
-cv.SetImageROI(img_dst, (801, 0, 801, 545))
-cv.Copy(img_cv, img_dst)
-
-for i in range(14):
-  click(1012, 656)
-time.sleep(0.1)
-
-img_pil = ImageGrab.grab((203, 120, 1004, 665))
-img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
-cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
-
-cv.SetImageROI(img_dst, (801, 545, 801, 545))
-cv.Copy(img_cv, img_dst)
-
-cv.ResetImageROI(img_dst)
-
-#cv.NamedWindow('img_dst', cv.CV_WINDOW_AUTOSIZE)
-#cv.ShowImage('img_dst', img_dst)
-#cv.WaitKey(0)
-
-cv.SaveImage("cc.png", img_dst)
-
-sys.exit(-1)  
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_pil.save('2.png')  
 
 
-#def glue_images(orientation, )
+# #for y in range(0, res.height):
+# #  for x in range(0, res.width):
+# #    s = cv.Get2D(res, y, x)
+# #    #print s[0]
+# #    if s[0] <= 200000:
+# #      cv.Rectangle(img,
+# #          (x, y),
+# #          (x+tpl.width-1, y+tpl.height-1),
+# #      cv.Scalar(0, 255, 255, 255), cv.CV_FILLED)
+# #
+# #      #cv.ResetImageROI(img)
+# #
+# #      cv.NamedWindow('image', cv.CV_WINDOW_AUTOSIZE)
+# #      cv.ShowImage('image', img)
+# #      cv.WaitKey(0)
+# #    #x = x + tpl_cv.width
+# #  #y = y + tpl_cv.width
+  
+# sys.exit(-1)
+
+# img_dst = cv.CreateImage((5000, 5000), cv.IPL_DEPTH_8U, 3)
+
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
+# cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
+
+# cv.SetImageROI(img_dst, (0, 0, 801, 545))
+# cv.Copy(img_cv, img_dst)
+
+# for i in range(21):
+  # click(995, 673)
+# time.sleep(0.1)
+
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
+# cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
+
+# cv.SetImageROI(img_dst, (801, 0, 801, 545))
+# cv.Copy(img_cv, img_dst)
+
+# for i in range(14):
+  # click(1012, 656)
+# time.sleep(0.1)
+
+# img_pil = ImageGrab.grab((203, 120, 1004, 665))
+# img_cv = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
+# cv.SetData(img_cv, img_pil.tostring(), img_pil.size[0]*3)
+
+# cv.SetImageROI(img_dst, (801, 545, 801, 545))
+# cv.Copy(img_cv, img_dst)
+
+# cv.ResetImageROI(img_dst)
+
+# #cv.NamedWindow('img_dst', cv.CV_WINDOW_AUTOSIZE)
+# #cv.ShowImage('img_dst', img_dst)
+# #cv.WaitKey(0)
+
+# cv.SaveImage("cc.png", img_dst)
+
+# sys.exit(-1)  
+
+
+# #def glue_images(orientation, )
 
 for item in ps.listen():
 
