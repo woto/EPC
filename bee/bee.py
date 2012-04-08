@@ -206,7 +206,7 @@ def choose_region(area):
   #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
   
 
-def search_applicability_in_current_area(catalog_number, cookie):
+def search_applicability_in_current_area(catalog_number, channel, data):
 
   # TODO этот блок скопирован с блока открытия окна выбора регионов
 
@@ -378,15 +378,9 @@ def search_applicability_in_current_area(catalog_number, cookie):
                 sended_models.append(tmp[0])
                 
                 tmp[6] = tmp[6].replace(' ', '')
-                #tmp = [x.replace('   ', ' ') for x in tmp]
-                #tmp = [x.replace('  ', ' ') for x in tmp]
                 tmp = filter(len, tmp)
-                #if tmp[0] == '018':
-                #  pdb.set_trace()
-                tmp = ["<td>" + x + "</td>" for x in tmp]
-                #print tmp
-                #pdb.set_trace()
-                jug.publish(cookie, "<tr>" + str(tmp) + "</tr>")
+                tmp = [x for x in tmp]
+                jug.publish(channel, {'channel': channel, 'data': data, 'line': tmp})
       
         if scroll_avaliable_first_check:
           logging.debug("Единоразовая проверка наличия скролла на 1 запрос каталожного(ых) номера(ов)")
@@ -695,7 +689,7 @@ wsh = comclt.Dispatch("WScript.Shell")
             # click(1005, 665)
           
         
-          # #jug.publish(cookie, str(filter(len, tmp)) + "<br />")
+          # #jug.publish(channel, str(filter(len, tmp)) + "<br />")
             # #pdb.set_trace()
             # #print tmp 
             # #print '' 
@@ -879,27 +873,26 @@ for item in ps.listen():
   manufacturer = data['data']['data']['manufacturer']
   catalog_number = data['data']['data']['catalog_number']  
   caps = data['caps']
-  cookie = data['data']['data']['cookie']
+  channel = data['data']['data']['channel']
   
   if manufacturer == "TOYOTA":
     if caps == "Toyota EPC":
       logging.debug('Проверяем, есть ли на этой машине Toyota EPC.')
       if config['Toyota EPC']['present']:
         logging.debug('Судя по настройке в конфиге - есть')
-        area = data['area']
         command = data['command']
-        key = "%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, area)
+        key = "%s:%s:%s:%s:%s" % (command, catalog_number, manufacturer, caps, data['area'])
         logging.debug('Ключ lock:' + str(key))
         if(rs.setnx('lock:' + key, 1)):
           rs.expire('lock:' + key, 30)
           if command == 'applicability':
             check_or_start_toyota_epc()
-            choose_region(area)
+            choose_region(data['area'])
             #print str(catalog_number)
-            
-            jug.publish(cookie, "<tr><td colspan='8'><strong>Region: " + area + "<strong></td></tr>")
-            
-            search_applicability_in_current_area(catalog_number, cookie)
+            #
+            #jug.publish(channel, "<tr><td colspan='8'><strong>Region: " + area + "<strong></td></tr>")
+            #
+            search_applicability_in_current_area(catalog_number, channel, data)
             #post_process_allow_origin(jsonify(time=str(catalog_number)))
           if command == 'images etc... ':
             pass
