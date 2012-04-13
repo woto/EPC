@@ -19,11 +19,8 @@ import win32com.client as comclt
 from seed_vin import *
 from juggernaut import Juggernaut
 
+from common import *
 
-logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\' at line %(lineno)d: %(message)s', 
-                    datefmt='%Y-%m-%d %H:%M:%S', 
-                    level=logging.DEBUG, 
-                    filename='../logs/application.log')
 key = ''
 
 rs = redis.Redis(config['Redis'])
@@ -39,7 +36,7 @@ def pil2gray(img_pil):
   img_gray = cv.CreateImage(img_pil.size, cv.IPL_DEPTH_8U, 1)
   cv.CvtColor(img_rgb, img_gray, cv.CV_RGB2GRAY)
   return img_gray
-
+  
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()

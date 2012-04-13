@@ -1,4 +1,8 @@
 ﻿config = { 
+  'Febest' : {
+    'path': "C:/Program Files/Febest/eCatalog/febestcatalog.exe",
+    'present' : True
+  },
   'Toyota EPC' : { 
     'path': "C:/TMCEPCW3/APLI/TMAIN.EXE",
     #'area': ('Europe', 'General', 'USA, Canada', 'Japan')

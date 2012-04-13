@@ -1,8 +1,70 @@
+#coding=UTF-8
+
 import pyscreenshot as ImageGrab
 import win32api, win32con
 from itertools import izip, tee
 import cv
 import pyscreenshot as ImageGrab
+import os, re, logging, time
+from window_mgr import WindowMgr
+from config import *
+
+
+
+logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\' at line %(lineno)d: %(message)s', 
+                    datefmt='%Y-%m-%d %H:%M:%S', 
+                    level=logging.DEBUG, 
+                    filename='../logs/application.log')
+
+def check_or_start_febest():
+  logging.debug('check_or_start_febest')
+  wmgr = WindowMgr()
+  logging.debug('Проверяем запущено ли вообще Febest') 
+  wmgr.find_window_wildcard("(.*)Febest")
+  if len(wmgr._handle) == 0:  
+    logging.debug('Нет, запускаем')
+    origWD = os.getcwd()
+    os.chdir(re.search("(.*)\/", config['Febest']['path']).group(0))
+    os.startfile(config['Febest']['path'])
+    os.chdir(origWD)
+    logging.debug('Запустили Febest, сменили рабочую директорию обратно') 
+    while True:
+      coords = find_match(False, ['images/Febest/OK.png'], (697, 588, 720, 608), 10, False)
+      logging.debug('Ищем кнопку ОК на первом экране') 
+      break_upper_2 = False
+      if coords:
+        logging.debug('Нашли')
+        break_upper = False
+        while True:
+          logging.debug('Нажимаем на кнопку на первом экране')
+          time.sleep(0.3)
+          click(708, 598)
+          for i in range(20):
+            coords = find_match(False, ['images/Febest/OK.png'], (697, 588, 720, 608), 10, False)
+            
+            logging.debug('Ищем кнопку ОК на втором экране: ' + str(i) + " раз") 
+            if coords:
+              logging.debug('Нашли') 
+              time.sleep(0.3)
+              click(801, 598)
+              break_upper = True
+              break
+            else:
+              logging.debug('Не нашли, спим') 
+
+          logging.debug("Количество попыток найти кнопку ОК на втором экране превысило допустимое кол-во, произойдет следующая итерация")              
+              
+          if break_upper:
+            break_upper_2 = True
+            break
+              
+      if break_upper_2:
+        break
+          
+      else:
+        logging.debug('Не нашли, спим') 
+      
+  logging.debug("Вышли из метода проверки запущенности Febest. Далее считается, что Febest запущен")
 
 def find_match(file_name, template_array, roi, minimal, debug):
 
