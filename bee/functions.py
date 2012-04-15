@@ -114,6 +114,11 @@ def find_match(file_name, template_array, roi, minimal, debug):
 def move(x, y):  
   win32api.SetCursorPos((x,y))
 
+def drag_drop((x1, y1), (x2, y2)):
+  win32api.SetCursorPos((x1,y1))
+  win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x1, y1, 0, 0)
+  win32api.SetCursorPos((x2,y2))
+  win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x2, y2, 0, 0)
   
 def click(x, y):  
   win32api.SetCursorPos((x,y))
@@ -141,3 +146,10 @@ def pairwise(iterable):
 #      func(path)
 #  else:
 #      raise
+
+def pil2gray(img_pil):
+  img_rgb = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
+  cv.SetData(img_rgb, img_pil.tostring(), img_pil.size[0]*3)
+  img_gray = cv.CreateImage(img_pil.size, cv.IPL_DEPTH_8U, 1)
+  cv.CvtColor(img_rgb, img_gray, cv.CV_RGB2GRAY)
+  return img_gray

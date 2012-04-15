@@ -1,25 +1,15 @@
 ﻿#coding=UTF-8
 
-import redis, json, sys, logging, pdb, sys, os, re, time, random
+import redis, json, sys, logging, pdb, sys, os, re, time, random, shutil, subprocess, Image, ImageChops, time, math, random, pdb, win32api, win32con
+
+import win32com.client as comclt
 from window_mgr import WindowMgr
-from config import *
-import win32com.client as comclt
-
-from functools import partial
-import shutil
-import subprocess
-import Image
-import ImageChops
 from functions import * 
-import pyscreenshot as ImageGrab
-
-import win32api, win32con
-import time, math, random, pdb
-import win32com.client as comclt
 from seed_vin import *
 from juggernaut import Juggernaut
+from config import *
 
-from common import *
+import pyscreenshot as ImageGrab
 
 key = ''
 
@@ -29,13 +19,6 @@ ps = rs.pubsub()
 ps.subscribe('bee')
 
 #rc.publish('foo', 'hello world')
-
-def pil2gray(img_pil):
-  img_rgb = cv.CreateImageHeader(img_pil.size, cv.IPL_DEPTH_8U, 3)
-  cv.SetData(img_rgb, img_pil.tostring(), img_pil.size[0]*3)
-  img_gray = cv.CreateImage(img_pil.size, cv.IPL_DEPTH_8U, 1)
-  cv.CvtColor(img_rgb, img_gray, cv.CV_RGB2GRAY)
-  return img_gray
   
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
@@ -87,7 +70,6 @@ def search_vin_in_current_area(vin):
 
   return True
 
-
    
 def goto_main_menu_toyota_epc():
   logging.debug("goto_main_menu_toyota_epc")
@@ -122,8 +104,7 @@ def goto_main_menu_toyota_epc():
       sleep = sleep + 0.1
       logging.debug("Exception. Спим " + str(sleep) + " с. перед следущей итерацией goto_main_menu_toyota_epc")
       time.sleep(sleep)
-      
-  
+
   
 def choose_region(area):
   logging.debug('choose_region("' + area + '")')
@@ -200,10 +181,9 @@ def choose_region(area):
   goto_main_menu_toyota_epc()
   
   #  im.save('static/vin/' + area + "/" + vin_code + ".png")
-  #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"
-  
+  #  areas[area]['Found'] = "<img src='http://192.168.2.9:5000/static/vin/" + area + "/" + vin_code + ".png'>"  
 
-def search_applicability_in_current_area(catalog_number, channel, data):
+def search_applicability_in_current_area(catalog_number, data):
 
   # TODO этот блок скопирован с блока открытия окна выбора регионов
 
@@ -384,12 +364,20 @@ def search_applicability_in_current_area(catalog_number, channel, data):
                     'caps': 'Toyota EPC',
                     'manufacturer': data['manufacturer'],
                     'area': data['area'],
-                    'command': 'testing',
-                    'catalog_number': data['catalog_number']
+                    'command': 'get_precisely_info_by_car_catalog',
+                    'catalog_number': data['catalog_number'],
+                    'line': tmp
                   }))
                   uniq_catalog_code.append(tmp[4])
 
-                jug.publish(channel, {'channel': channel, 'data': data, 'line': tmp})
+                rs.publish('queen', json.dumps({
+                  'caps': 'Toyota EPC',
+                  'manufacturer': data['manufacturer'],
+                  'area': data['area'],
+                  'command': 'part_number_application_to_models',
+                  'catalog_number': data['catalog_number'],     
+                  'line': tmp
+                }))
       
         if scroll_avaliable_first_check:
           logging.debug("Единоразовая проверка наличия скролла на 1 запрос каталожного(ых) номера(ов)")
@@ -875,10 +863,9 @@ wsh = comclt.Dispatch("WScript.Shell")
 for item in ps.listen():
 
   data = json.loads(item['data'])
-
+    
   if data['caps'] == "Tecdoc":
-    print 'gotcha'
-    print data
+
     '''
     check_or_start_tectdoc()
     i = 0        
@@ -968,36 +955,31 @@ for item in ps.listen():
     logging.debug('Проверяем, есть ли на этой машине Toyota EPC.')
     if config['Toyota EPC']['present']:
       logging.debug('Судя по настройке в конфиге - есть')
-      key = "%s:%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'], data['area'])
-      logging.debug('Ключ lock:' + str(key))
-      if(rs.setnx('lock:' + key, 1)):
-        rs.expire('lock:' + key, 30)
-        
-        if data['command'] == 'applicability':
+      if data['command'] == 'get_precisely_info_by_car_catalog':
+        #print 'Тут надо получать более точную инфорацию по каталожному номеру'
+        pass
+      elif data['command'] == 'part_number_application_to_models':
+        key = "%s:%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'], data['area'])
+        logging.debug('Ключ lock:' + str(key))
+        if(rs.setnx('lock:' + key, 1)):
+          rs.expire('lock:' + key, 300)
+
           check_or_start_toyota_epc()
           choose_region(data['area'])
-          search_applicability_in_current_area(data['catalog_number'], data['channel'], data)
+          search_applicability_in_current_area(data['catalog_number'], data)
 
-        elif data['command'] == 'testing':
-          print data
-          pass
-          
-        elif data['command'] == 'images etc... ':
-          pass
-          
-        elif data['command'] == 'substitution etc...':
-          pass
-          
-        elif data['command'] == 'procurement...':
-          pass
+      elif data['command'] == 'testing':
+        print data
+        pass
+        
+      elif data['command'] == 'images etc... ':
+        pass
+        
+      elif data['command'] == 'substitution etc...':
+        pass
+        
+      elif data['command'] == 'procurement...':
+        pass
 
   else:
     pass
-    
-  
-  
-  #if rs.setnx(data['data']['url'], 1):
-  #  #print '1'
-  #  rs.expire(data['data']['url'], 10)
-  #else:
-  #  print '2'
