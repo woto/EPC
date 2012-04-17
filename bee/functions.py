@@ -16,6 +16,32 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\
                     level=logging.DEBUG, 
                     filename='../logs/application.log')
 
+def check_or_start_toyota_epc():
+  logging.debug('check_or_start_toyota_epc')
+  wmgr = WindowMgr()
+  logging.debug('Проверяем запущено ли вообще Toyota EPC') 
+  wmgr.find_window_wildcard("TOYOTA ELECTRONIC PARTS CATALOG(.*)")
+  if len(wmgr._handle) == 0:  
+    logging.debug('Нет, запускаем')
+    origWD = os.getcwd()
+    os.chdir(re.search("(.*)\/", config['Toyota EPC']['path']).group(0))
+    os.startfile(config['Toyota EPC']['path'])
+    os.chdir(origWD)
+  logging.debug("Вышли из метода проверки запущенности Toyota EPC. Далее считается, что Toyota EPC запущен")                    
+                    
+def check_or_start_tecdoc():
+  logging.debug('check_or_start_tectdoc')
+  wmgr = WindowMgr()
+  logging.debug('Ищем окно TECDOC') 
+  wmgr.find_window_wildcard(".*TECDOC(.*)")
+  if len(wmgr._handle) == 0:
+    logging.debug('TECDOC не был запущен, запускаем') 
+    origWD = os.getcwd()
+    os.chdir(re.search("(.*)\/", config['Tecdoc']['path']).group(0))
+    os.startfile(config['Tecdoc']['path'])
+    os.chdir(origWD)
+  logging.debug("Вышли из метода проверки запущенности Tecdoc. Далее считается, что Tecdoc запущен")                    
+                    
 def check_or_start_febest():
   logging.debug('check_or_start_febest')
   wmgr = WindowMgr()
