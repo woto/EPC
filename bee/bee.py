@@ -929,6 +929,15 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                   print catalog_number
                   print tecdoc_manufacturer
                   print ''
+                else:
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': tecdoc_manufacturer,
+                    'command': 'specifically_number_info',
+                    'catalog_number': catalog_number,
+                    'bla': 'i need a dollar'
+                  }))                  
+                  
                 #time.sleep(1)
                 return
 
