@@ -325,7 +325,7 @@ def search_applicability_in_current_area(catalog_number, data):
                 idx = 0
               if(letter['letter'] == ' | '):
                 #pdb.set_trace()
-                tmp[idx] += ' '
+                tmp[idx] += '<br />'
                 idx += 1
                 tmp.append('')
                 continue
