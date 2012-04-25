@@ -551,11 +551,12 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 else:
                   tecdoc_manufacturer = manufacturer
                 wsh.SendKeys(tecdoc_manufacturer)
-                time.sleep(0.2)
+                # TODO не успевает! надо делать на проверках?!
+                time.sleep(0.5)
                 wsh.SendKeys("{Enter}")
-                time.sleep(0.2)
+                time.sleep(0.5)
                 wsh.SendKeys("^c", 0)
-                time.sleep(0.2)
+                time.sleep(0.5)
                 win32clipboard.OpenClipboard()
                 #win32clipboard.EmptyClipboard()
                 data = win32clipboard.GetClipboardData()
@@ -563,6 +564,7 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 win32clipboard.CloseClipboard()
                 click(868, 916)
                 if(tecdoc_manufacturer != data):
+                  pdb.set_trace()
                   print catalog_number
                   print tecdoc_manufacturer
                   print ''
