@@ -6,7 +6,7 @@
   'Microcat KIA': {
     'path': "C:\MCKIA\MCKIA.EXE",
     'present': True  
-  }
+  },
   'Febest' : {
     'path': "C:/Program Files/Febest/eCatalog/febestcatalog.exe",
     'present' : True
@@ -38,5 +38,5 @@
       'path': 'C:\MMC\ASA\M60\PROG\ASA.exe'
     }
   },
-  'Redis': '192.168.2.3'
+  'Redis': '5.214.159.2'
 }
