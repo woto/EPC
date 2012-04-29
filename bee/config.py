@@ -1,4 +1,12 @@
-﻿config = { 
+﻿config = {
+  'Microcat Hyundai': {
+    'path': "C:\MCHYW\MCHYW.EXE",
+    'present': True
+  },
+  'Microcat KIA': {
+    'path': "C:\MCKIA\MCKIA.EXE",
+    'present': True  
+  }
   'Febest' : {
     'path': "C:/Program Files/Febest/eCatalog/febestcatalog.exe",
     'present' : True
