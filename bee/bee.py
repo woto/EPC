@@ -259,7 +259,11 @@ def search_applicability_in_current_area(catalog_number, data):
         if s[0] <= 10:
           lines.append(y)
       
-      if lines:
+      logging.debug("Далее проверяем количество полосок, более 1 или нет (другими словами есть ли результаты поиска)")
+      
+      # Единичка видимо потому что одна верхняя полоска всегда присутствует в области
+      if len(lines) > 1:
+
         logging.debug("Найденные полоски " + str(lines) + ". Заходим в цикл перебора полосок")
         
         for y1, y2 in pairwise(lines):
@@ -354,18 +358,19 @@ def search_applicability_in_current_area(catalog_number, data):
                     'area': data['area'],
                     'command': 'get_precisely_info_by_car_catalog',
                     'catalog_number': data['catalog_number'],
-                    'line': tmp
+                    'data': tmp
                   }))
                   uniq_catalog_code.append(tmp[4])
-
+                  
                 rs.publish('queen', json.dumps({
                   'caps': 'Toyota EPC',
                   'manufacturer': data['manufacturer'],
                   'area': data['area'],
                   'command': 'part_number_application_to_models',
                   'catalog_number': data['catalog_number'],     
-                  'line': tmp
+                  'data': tmp
                 }))
+                  
       
         if scroll_avaliable_first_check:
           logging.debug("Единоразовая проверка наличия скролла на 1 запрос каталожного(ых) номера(ов)")
@@ -463,30 +468,43 @@ def search_applicability_in_current_area(catalog_number, data):
             if continue_iteration:
               logging.debug("Переходим к следующей итерации цикла по полоскам")
               continue
-              
-        logging.debug("Осуществляем возврат из метода")
-        return
+
+      else:
+        logging.debug("Результаты поиска не найдены. Отправили пустышку, что в данном регионе поискали")
+        rs.publish('queen', json.dumps({
+          'caps': 'Toyota EPC',
+          'manufacturer': data['manufacturer'],
+          'area': data['area'],
+          'command': 'part_number_application_to_models',
+          'catalog_number': data['catalog_number'],     
+          'data': None
+        }))
+        
+      logging.debug("Осуществляем возврат из метода")
+      return        
 
 wsh = comclt.Dispatch("WScript.Shell")  
 
 def search_in_tecdoc(catalog_number, manufacturer, data):
 
   check_or_start_tecdoc()
+  sleep = 0
   i = 0
-  
+    
   while True:
     try:
       logging.debug('Сейчас мы ищем TECDOC, мы уже знаем, что он точно запущен, ищем его') 
       wmgr = WindowMgr()
       wmgr.find_window_wildcard(".*TECDOC(.*)")
       
-      logging.debug('Спим ' + str(i) + 'с. перед тем как сделать активным TECDOC')
-      time.sleep(i)
+      logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+      time.sleep(sleep)
       wmgr.set_foreground(True, True, True)
+      logging.debug('Считаем, что сделали TECDOC активным')
 
-      logging.debug('Спим ' + str(i) + 'с. перед отправкой в него ESC')
-      time.sleep(i)
-      logging.debug('Нажимем ESC')
+      logging.debug('Спим ' + str(sleep) + 'с. перед отправкой в него ESC')
+      time.sleep(sleep)
+      logging.debug('Нажимаем ESC')
       wsh.SendKeys("{ESC}")
       time.sleep(0.1) # Обязательно!
       
@@ -496,97 +514,156 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
       if coords:
         logging.debug('Нашли поставленную галочку на "Любой номер"') 
 
-        logging.debug('Спим ' + str(i) + 'с. перед перед снятием галочки с "Любой номер"')
-        time.sleep(i) 
+        logging.debug('Спим ' + str(sleep) + 'с. перед перед снятием галочки с "Любой номер"')
+        time.sleep(sleep) 
         click(757, 113)
         time.sleep(0.1) # Обязательно!
         
-        logging.debug('Спим ' + str(i) + 'с. перед проверкой, что мы действительно сняли галочку с "Любой номер"')
-        time.sleep(i)
+        logging.debug('Спим ' + str(sleep) + 'с. перед проверкой, что мы действительно сняли галочку с "Любой номер"')
+        time.sleep(sleep)
         coords = find_match(None, ['images/Tecdoc/Check Box - Unchecked.png'], (749, 104, 767, 121), 10, False)
         if coords:
-          logging.debug('Убедились, что галочка "Любой номер снята", спим перед нажатием на кнопку поиска запчастей (Увеличительное стекло)') 
+        
+          comparing_area = (209, 203, 1249, 877)
+          logging.debug('Сохраняем предыдущий экран будь то результаты поиска или что-то другое...')
+          previous_image = ImageGrab.grab(comparing_area)
+          #previous_image.save('image_1.png')
+        
+          logging.debug('Убедились, что галочка "Любой номер снята", нажатием на кнопку поиска запчастей (Увеличительное стекло)') 
           click(209, 43)
           
-          logging.debug('Спим ' + str(i) + 'с. перед вводом каталожного номера')
+          logging.debug('Спим ' + str(sleep) + 'с. перед вводом каталожного номера')
           logging.debug('Вводим каталожный номер.')
           wsh.SendKeys(catalog_number)
           time.sleep(0.2)
+          logging.debug('Нажимаем Enter.')
           wsh.SendKeys("{ENTER}")
           
-          for i in range(50):
+          while True:
+            logging.debug('Снимаем опять скриншот с результата поиска')          
+            current_image = ImageGrab.grab(comparing_area)
+            diff = ImageChops.difference(previous_image, current_image)
+            time.sleep(0.1)
+            if (diff.getbbox() != None):
+              logging.debug('Сравниваемые изображения разные, выходим из цикла')          
+              #current_image.save('image_2.png')
+              #diff.save('diff.png')
+              break
+
+          #for i in range(1):
+          if True:
             logging.debug('Ищем ' + str(i+1) + ' раз наличие, либо отсутсвтие информации по запчасти') 
             
             logging.debug('Ищем окно, сообщающее, что каталожный номер не найден') 
             coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
             if coords:
+              logging.debug('Нашли окно окно, сообщающее, что каталожный номер не найден') 
               while True:
+                logging.debug('Отправили в него ESC') 
                 wsh.SendKeys("{ESC}")
+                time.sleep(0.1)
+                logging.debug('Проверяем, чтобы окно скрылось') 
                 coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)   
                 if not coords: 
-                  #return post_process_allow_origin(jsonify(time="Ничего не нашли"))
+                  logging.debug("Окно закрылось")
+                  logging.debug("Отправляем пустые данные")
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': manufacturer,
+                    'command': 'specifically_number_info',
+                    'catalog_number': catalog_number,
+                    'data': None
+                  }))
                   return
-                time.sleep(0.1)
-            logging.debug('Ищем что-то там :), сообщающее, что каталожный номер найден') 
-            coords = find_match(None, ['images/Tecdoc/Found Any.png'], (1128, 238, 1192, 258), 100, False)
+                else:
+                  logging.debug("Окно не закрылось")
+
+            logging.debug('Ищем увеличительное стекло, означающее, что каталожный номер найден') 
+            coords = find_match(None, ['images/Tecdoc/Magnifier.png'], (224, 239, 243, 258), 100, False)
             if coords:
+              logging.debug('Нашли увеличительное стекло') 
               break_outer = False
+              sleep = 0.1
+              
               while True:
+                
+                logging.debug('Спим ' + str(sleep))
+                time.sleep(sleep)
+                logging.debug('Кликаем на выпадающем списке для просмотра всех найденных производителей')
                 click(1252, 916)
-                # TODO тут сделать инкрементный слип
-                time.sleep(0.1)
+                logging.debug('Кликнули, спим ' + str(sleep))
+                time.sleep(sleep)
                 im = ImageGrab.grab((875, 905, 876, 906))
                 im = im.convert("RGBA")
                 pixdata = im.load()
                 
+                logging.debug('Проверяем наличие нужного пикселя, т.е. что список действительно выпал')
                 if(pixdata[0, 0] == (0, 0, 0, 255)):
-                  break_outer = True
+                  logging.debug("Список отобразился, выходим из цикла, щелканья и нахождения выпадающего списка")
                   break
-              
-              if break_outer:
-                logging.debug('Нашли что-то там :)')
                 
-                if (tecdoc_manufacturer_alias.has_key(manufacturer)):
-                  tecdoc_manufacturer = tecdoc_manufacturer_alias[manufacturer]
-                else:
-                  tecdoc_manufacturer = manufacturer
-                wsh.SendKeys(tecdoc_manufacturer)
-                # TODO не успевает! надо делать на проверках?!
-                time.sleep(0.5)
-                wsh.SendKeys("{Enter}")
-                time.sleep(0.5)
-                wsh.SendKeys("^c", 0)
-                time.sleep(0.5)
-                win32clipboard.OpenClipboard()
-                #win32clipboard.EmptyClipboard()
-                data = win32clipboard.GetClipboardData()
-                #win32clipboard.SetClipboardText(text)
-                win32clipboard.CloseClipboard()
-                click(868, 916)
-                if(tecdoc_manufacturer != data):
-                  pdb.set_trace()
-                  print catalog_number
-                  print tecdoc_manufacturer
-                  print ''
-                else:
-                  rs.publish('queen', json.dumps({
-                    'caps': 'Tecdoc',
-                    'manufacturer': tecdoc_manufacturer,
-                    'command': 'specifically_number_info',
-                    'catalog_number': catalog_number,
-                    'bla': 'i need a dollar'
-                  }))                  
-                  
-                #time.sleep(1)
-                return
-
-              #logging.debug('Граббим экран') 
-              #im = ImageGrab.grab((207, 204, 1128, 890))
-              #logging.debug('Сохраняем изображением в папке') 
-              #im.save("./static/" + catalog_number + ".png")
-              #logging.debug('Возвращаем результат')
-              #return post_process_allow_origin(jsonify(time=str(catalog_number)))        
-
+                logging.debug('Выход из цикла не произошел, прибавляем время, повторяем бесконечную итерацию по поиску выпавшего списка')
+                sleep += 0.3
+              
+              if (tecdoc_manufacturer_alias.has_key(manufacturer)):
+                tecdoc_manufacturer = tecdoc_manufacturer_alias[manufacturer]
+              else:
+                tecdoc_manufacturer = manufacturer
+                
+              logging.debug("Печатаем производителя в поле")
+              #for char in tecdoc_manufacturer:
+              #  wsh.SendKeys(char)
+              wsh.SendKeys(tecdoc_manufacturer)
+              # TODO не успевает! надо делать на проверках?!
+              logging.debug("Спим")
+              time.sleep(0.1)
+              logging.debug("Нажимаем Enter")
+              wsh.SendKeys("{Enter}")
+              logging.debug("Спим")
+              time.sleep(0.1)
+              logging.debug("Копируем выделение")
+              wsh.SendKeys("^c", 0)
+              logging.debug("Спим")
+              time.sleep(0.1)
+              win32clipboard.OpenClipboard()
+              #win32clipboard.EmptyClipboard()
+              data = win32clipboard.GetClipboardData()
+              #win32clipboard.SetClipboardText(text)
+              win32clipboard.CloseClipboard()
+              logging.debug("Щелкаем в сторонке")
+              click(868, 916)
+              if(tecdoc_manufacturer != data):
+                logging.debug("Искомый и ни один из найденных производителей не совпали")
+                # TODO тут тоже сделать возврат пустышки
+                print ''
+                print catalog_number
+                print tecdoc_manufacturer
+                print ''
+                #pdb.set_trace()
+                
+                rs.publish('queen', json.dumps({
+                  'caps': 'Tecdoc',
+                  'manufacturer': manufacturer,
+                  'command': 'specifically_number_info',
+                  'catalog_number': catalog_number,
+                  'data': None
+                }))                          
+                
+              else:
+                logging.debug("Искомый и доступный среди найденных производителей совпали, отправляем пока что пустышку")
+                rs.publish('queen', json.dumps({
+                  'caps': 'Tecdoc',
+                  'manufacturer': manufacturer,
+                  'command': 'specifically_number_info',
+                  'catalog_number': catalog_number,
+                  'data': '1'
+                }))                  
+              
+              logging.debug("Возврат из метода")
+              return
+            else:
+              logging.debug("Иконка увеличительного стекла, означающее, что каталожный номер найден, не найдена")
+              
             time.sleep(0.1)
             
           logging.debug('По видимому столкнулись с проблематичной деталью')
