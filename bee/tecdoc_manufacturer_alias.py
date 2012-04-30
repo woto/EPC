@@ -3,5 +3,6 @@ tecdoc_manufacturer_alias = {
   'ABS': 'A.B.S.',
   'HENGST': 'HENGST FILTER',
   'AMC FILTER': 'AMC Filter',
-  'MAHLE': 'MAHLE ORIGINAL'
+  'MAHLE': 'MAHLE ORIGINAL',
+  'MANN': 'MANN-FILTER'
 }

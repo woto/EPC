@@ -206,6 +206,14 @@ def search_applicability_in_current_area(catalog_number, data):
       time.sleep(sleep)
   
   
+  # Этот workaround нужен для обработки номеров от нерадивых поставщиков, 
+  # которые указывают, производителя как Toyota, а номер совсем не Toyot'ы
+  
+  old_catalog_number = catalog_number
+  
+  if len(catalog_number) < 10:
+    catalog_number = 'WRONG_NUMBER'
+  
   # TODO опять же, этот блок скопирован с старого раздела поиска по вин коду, потом возможно вынесу просто в метод.
   logging.debug("Магия с раскладкой")
   win32api.SendMessage(0xFFFF, 0x50, 1, 0x4090409)
@@ -220,6 +228,8 @@ def search_applicability_in_current_area(catalog_number, data):
   logging.debug("Жмем F10")
   wsh.SendKeys("{F10}")
   logging.debug("Вбили каталожный номер, нажали Enter и F10")
+  
+  catalog_number = old_catalog_number
   
   
   sended_models = []
