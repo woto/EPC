@@ -38,5 +38,5 @@
       'path': 'C:\MMC\ASA\M60\PROG\ASA.exe'
     }
   },
-  'Redis': '5.214.159.2'
+  'Redis': 'kaprika.ru'
 }

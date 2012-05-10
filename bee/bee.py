@@ -13,15 +13,6 @@ from config import *
 
 import pyscreenshot as ImageGrab
 
-key = ''
-
-rs = redis.Redis(config['Redis'])
-jug = Juggernaut(rs)
-ps = rs.pubsub()
-ps.subscribe('bee')
-
-#rc.publish('foo', 'hello world')
-
 def search_vin_in_current_area(vin):
   logging.debug('search_vin_in_current_area')
   # Ждем появления Search.png
@@ -691,49 +682,79 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
 
     i = i + 0.3
 
-for item in ps.listen():
-
-  data = json.loads(item['data'])
+while True: 
+   
+  try:
     
-  if data['caps'] == "Tecdoc":
-    logging.debug('Проверяем, есть ли на этой машине Tecdoc.')
-    if config['Tecdoc']['present']:
-      logging.debug('Судя по настройке в конфиге - есть')
-      if data['command'] == 'specifically_number_info':
-        key = "%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'])
-        logging.debug('Ключ lock:' + str(key))
-        if(rs.setnx('lock:' + key, 1)):
-          rs.expire('lock:' + key, 300)
-          search_in_tecdoc(data['catalog_number'], data['manufacturer'], data)
-  elif data['caps'] == "Toyota EPC":
-    logging.debug('Проверяем, есть ли на этой машине Toyota EPC.')
-    if config['Toyota EPC']['present']:
-      logging.debug('Судя по настройке в конфиге - есть')
-      if data['command'] == 'get_precisely_info_by_car_catalog':
-        #print 'Тут надо получать более точную инфорацию по каталожному номеру'
-        pass
-      elif data['command'] == 'part_number_application_to_models':
-        key = "%s:%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'], data['area'])
-        logging.debug('Ключ lock:' + str(key))
-        if(rs.setnx('lock:' + key, 1)):
-          rs.expire('lock:' + key, 300)
+    key = ''
 
-          check_or_start_toyota_epc()
-          choose_region(data['area'])
-          search_applicability_in_current_area(data['catalog_number'], data)
+    #pdb.set_trace()
+    rs = redis.StrictRedis('78.46.233.188', 6379, 0, None, None, None, 'utf-8', 'strict', None)
+    jug = Juggernaut(rs)
+    ps = rs.pubsub()
+    ps.subscribe('bee')
 
-      elif data['command'] == 'testing':
-        print data
-        pass
-        
-      elif data['command'] == 'images etc... ':
-        pass
-        
-      elif data['command'] == 'substitution etc...':
-        pass
-        
-      elif data['command'] == 'procurement...':
-        pass
+    #rc.publish('foo', 'hello world')  
+  
+    for item in ps.listen():
 
-  else:
-    pass
+      data = json.loads(item['data'])
+      print data
+        
+      if data['caps'] == "Tecdoc":
+        logging.debug('Проверяем, есть ли на этой машине Tecdoc.')
+        if config['Tecdoc']['present']:
+          logging.debug('Судя по настройке в конфиге - есть')
+          logging.debug('раз')
+          if data['command'] == 'specifically_number_info':
+            logging.debug('два')
+            key = "%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'])
+            logging.debug('три')
+            logging.debug('Ключ lock:' + str(key))
+            if(rs.setnx('lock:' + key, 1)):
+              logging.debug('четыре')
+              rs.expire('lock:' + key, 300)
+              logging.debug('пять')
+              search_in_tecdoc(data['catalog_number'], data['manufacturer'], data)
+              logging.debug('шесть')
+      elif data['caps'] == "Toyota EPC":
+        logging.debug('семь')
+        logging.debug('Проверяем, есть ли на этой машине Toyota EPC.')
+        if config['Toyota EPC']['present']:
+          logging.debug('восемь')
+          logging.debug('Судя по настройке в конфиге - есть')
+          if data['command'] == 'get_precisely_info_by_car_catalog':
+            logging.debug('девять')
+            #print 'Тут надо получать более точную инфорацию по каталожному номеру'
+            pass
+          elif data['command'] == 'part_number_application_to_models':
+            logging.debug('десять')
+            key = "%s:%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'], data['area'])
+            logging.debug('одиннадцать')
+            logging.debug('Ключ lock:' + str(key))
+            if(rs.setnx('lock:' + key, 1)):
+              logging.debug('двенадцать')
+              rs.expire('lock:' + key, 300)
+
+              check_or_start_toyota_epc()
+              choose_region(data['area'])
+              search_applicability_in_current_area(data['catalog_number'], data)
+
+          elif data['command'] == 'testing':
+            print data
+            pass
+            
+          elif data['command'] == 'images etc... ':
+            pass
+            
+          elif data['command'] == 'substitution etc...':
+            pass
+            
+          elif data['command'] == 'procurement...':
+            pass
+
+      else:
+        pass
+  except Exception, exc:
+    print 'Ошибка redis'
+    time.sleep(1)
