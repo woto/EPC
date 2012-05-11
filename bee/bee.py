@@ -1,6 +1,6 @@
 ﻿#coding=UTF-8
 
-import redis, json, sys, logging, pdb, sys, os, re, time, random, shutil, subprocess, Image, ImageChops, time, math, random, pdb, win32api, win32con
+import time, redis, json, sys, logging, pdb, sys, os, re, time, random, shutil, subprocess, Image, ImageChops, time, math, random, pdb, win32api, win32con
 
 import win32clipboard
 import win32com.client as comclt
@@ -685,18 +685,25 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
 while True: 
    
   try:
-    
+    logging.debug('Начало')
     key = ''
 
+    logging.debug('Подключаемся к Редис')
     #pdb.set_trace()
-    rs = redis.StrictRedis('78.46.233.188', 6379, 0, None, None, None, 'utf-8', 'strict', None)
+    rs = redis.StrictRedis('78.46.233.188', socket_timeout=10)
+    logging.debug('Подключаемся к Джаггернаут')
     jug = Juggernaut(rs)
+    logging.debug('Создаем паб/саб объект')
     ps = rs.pubsub()
+    logging.debug('Выбираем нужные канал')
     ps.subscribe('bee')
 
     #rc.publish('foo', 'hello world')  
   
+    logging.debug('Заходим в цикл прослушивания канала')
+    #pdb.set_trace()
     for item in ps.listen():
+      logging.debug('Что-то пришло в канале')
 
       data = json.loads(item['data'])
       print data
@@ -755,6 +762,11 @@ while True:
 
       else:
         pass
+        
+      logging.debug("Итерация внутри пс.листен завершена")
+      
   except Exception, exc:
-    print 'Ошибка redis'
-    time.sleep(1)
+    print exc
+    print time.time()
+    print time
+    #time.sleep(1)
