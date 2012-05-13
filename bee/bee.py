@@ -690,7 +690,7 @@ while True:
 
     logging.debug('Подключаемся к Редис')
     #pdb.set_trace()
-    rs = redis.StrictRedis('78.46.233.188', socket_timeout=10)
+    rs = redis.StrictRedis('78.46.233.188', socket_timeout=60)
     logging.debug('Подключаемся к Джаггернаут')
     jug = Juggernaut(rs)
     logging.debug('Создаем паб/саб объект')
