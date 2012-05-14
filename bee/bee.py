@@ -690,7 +690,7 @@ while True:
 
     logging.debug('Подключаемся к Редис')
     #pdb.set_trace()
-    rs = redis.StrictRedis('78.46.233.188', socket_timeout=60)
+    rs = redis.StrictRedis(config['Redis'], socket_timeout=60)
     logging.debug('Подключаемся к Джаггернаут')
     jug = Juggernaut(rs)
     logging.debug('Создаем паб/саб объект')
@@ -717,7 +717,7 @@ while True:
             logging.debug('два')
             key = "%s:%s:%s:%s" % (data['command'], data['catalog_number'], data['caps'], data['manufacturer'])
             logging.debug('три')
-            logging.debug('Ключ lock:' + str(key))
+            logging.debug('Ключ lock:' + key.encode('utf-8', 'replace'))
             if(rs.setnx('lock:' + key, 1)):
               logging.debug('четыре')
               rs.expire('lock:' + key, 300)
@@ -766,7 +766,8 @@ while True:
       logging.debug("Итерация внутри пс.листен завершена")
       
   except Exception, exc:
-    print exc
+    exc_type, exc_object, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print (exc, exc_type, fname, exc_tb.tb_lineno)
     print time.time()
-    print time
     #time.sleep(1)
