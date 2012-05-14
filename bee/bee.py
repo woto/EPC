@@ -488,6 +488,12 @@ wsh = comclt.Dispatch("WScript.Shell")
 
 def search_in_tecdoc(catalog_number, manufacturer, data):
 
+  if(len(catalog_number) <= 0):
+    catalog_number = 'WRONG_CATALOG_NUMBER'
+    
+  if(len(manufacturer) <= 0):
+    manufacturer = 'WRONG_MANUFACTURER'
+    
   check_or_start_tecdoc()
   sleep = 0
   i = 0
