@@ -414,8 +414,17 @@ def search_applicability_in_current_area(catalog_number, data):
               continue
             
             logging.debug("Следующим шагом заходим в цикл, в котором будем подниматься постепенно вверх, пока не найдем нижнюю область, запомненную ранее")
-              
+            
+            # TODO DIRTY BUG WORKAROUND Необходим в том случае, когда три полоски с применимостью детали не помещаются в одно окно, позже буду переделывать склейкой скриншотов, эта проблема устранится.
+            global_lock_counter_when_line_very_high = 0
+            
             while True:
+              global_lock_counter_when_line_very_high += 1
+              if(global_lock_counter_when_line_very_high >= 10):
+                continue_iteration = True
+                break
+
+              #print global_lock_counter_when_line_very_high
               logging.debug("Возвращаемся назад щелчком на стрелку верхнего скролла")
               click(1005, 340)
               time.sleep(0.1)
@@ -488,10 +497,10 @@ wsh = comclt.Dispatch("WScript.Shell")
 
 def search_in_tecdoc(catalog_number, manufacturer, data):
 
-  if(len(catalog_number) <= 0):
+  if(catalog_number == None or len(catalog_number) <= 0):
     catalog_number = 'WRONG_CATALOG_NUMBER'
     
-  if(len(manufacturer) <= 0):
+  if(manufacturer == None or len(manufacturer) <= 0):
     manufacturer = 'WRONG_MANUFACTURER'
     
   check_or_start_tecdoc()
@@ -576,9 +585,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                   logging.debug("Отправляем пустые данные")
                   rs.publish('queen', json.dumps({
                     'caps': 'Tecdoc',
-                    'manufacturer': manufacturer,
+                    'manufacturer': data['manufacturer'],
                     'command': 'specifically_number_info',
-                    'catalog_number': catalog_number,
+                    'catalog_number': data['catalog_number'],
                     'data': None
                   }))
                   return
@@ -634,12 +643,12 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
               time.sleep(0.1)
               win32clipboard.OpenClipboard()
               #win32clipboard.EmptyClipboard()
-              data = win32clipboard.GetClipboardData()
+              clipboard_data = win32clipboard.GetClipboardData()
               #win32clipboard.SetClipboardText(text)
               win32clipboard.CloseClipboard()
               logging.debug("Щелкаем в сторонке")
               click(868, 916)
-              if(tecdoc_manufacturer != data):
+              if(tecdoc_manufacturer != clipboard_data):
                 logging.debug("Искомый и ни один из найденных производителей не совпали")
                 # TODO тут тоже сделать возврат пустышки
                 print ''
@@ -650,9 +659,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 
                 rs.publish('queen', json.dumps({
                   'caps': 'Tecdoc',
-                  'manufacturer': manufacturer,
+                  'manufacturer': data['manufacturer'],
                   'command': 'specifically_number_info',
-                  'catalog_number': catalog_number,
+                  'catalog_number': data['catalog_number'],
                   'data': None
                 }))                          
                 
@@ -660,9 +669,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 logging.debug("Искомый и доступный среди найденных производителей совпали, отправляем пока что пустышку")
                 rs.publish('queen', json.dumps({
                   'caps': 'Tecdoc',
-                  'manufacturer': manufacturer,
+                  'manufacturer': data['manufacturer'],
                   'command': 'specifically_number_info',
-                  'catalog_number': catalog_number,
+                  'catalog_number': data['catalog_number'],
                   'data': '1'
                 }))                  
               
@@ -682,10 +691,10 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
         logging.debug('Не нашли поставленную галочку на "Любой номер"')
         raise
     except Exception as exc:
-      print type(exc)     # the exception instance
-      print exc.args      # arguments stored in .args
-      print exc           # __str__ allows args to printed directly 
-
+      exc_type, exc_object, exc_tb = sys.exc_info()
+      fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+      print (exc, exc_type, fname, exc_tb.tb_lineno)
+    
     i = i + 0.3
 
 while True: 
@@ -696,7 +705,7 @@ while True:
 
     logging.debug('Подключаемся к Редис')
     #pdb.set_trace()
-    rs = redis.StrictRedis(config['Redis'], socket_timeout=60)
+    rs = redis.StrictRedis(config['Redis'], socket_timeout=config['Redis socket_timeout'])
     logging.debug('Подключаемся к Джаггернаут')
     jug = Juggernaut(rs)
     logging.debug('Создаем паб/саб объект')
@@ -726,7 +735,7 @@ while True:
             logging.debug('Ключ lock:' + key.encode('utf-8', 'replace'))
             if(rs.setnx('lock:' + key, 1)):
               logging.debug('четыре')
-              rs.expire('lock:' + key, 300)
+              rs.expire('lock:' + key, 86400)
               logging.debug('пять')
               search_in_tecdoc(data['catalog_number'], data['manufacturer'], data)
               logging.debug('шесть')
@@ -768,7 +777,11 @@ while True:
 
       else:
         pass
-        
+      
+      # Если ветвится запрос по одной детали (например регионы Тойоты, то запишется после первой обработки ветви)
+      # Перенес сюда из Queen
+      rs.set('t:' + data['catalog_number'] + ":" + data['manufacturer'], str(int(time.time() * 1000)));
+      
       logging.debug("Итерация внутри пс.листен завершена")
       
   except Exception, exc:
