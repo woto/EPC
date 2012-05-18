@@ -6,3 +6,7 @@
 *.db
 site/static/*
 site/img.png
+bee/img.png
+bee/diff.png
+bee/image_1.png
+bee/image_2.png
