@@ -735,7 +735,7 @@ while True:
             logging.debug('Ключ lock:' + key.encode('utf-8', 'replace'))
             if(rs.setnx('lock:' + key, 1)):
               logging.debug('четыре')
-              rs.expire('lock:' + key, 86400)
+              #rs.expire('lock:' + key, config['Redis t_key_ttl'])
               logging.debug('пять')
               search_in_tecdoc(data['catalog_number'], data['manufacturer'], data)
               logging.debug('шесть')

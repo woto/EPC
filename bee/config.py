@@ -38,7 +38,7 @@
       'path': 'C:\MMC\ASA\M60\PROG\ASA.exe'
     }
   },
-  'Redis': 'kaprika.ru'
+  'Redis': 'kaprika.ru',
   'Redis socket_timeout': 60
   #'Redis': '5.214.159.2'  
 }
