@@ -39,6 +39,7 @@
     }
   },
   'Redis': 'kaprika.ru',
-  'Redis socket_timeout': 60
+  'Redis socket_timeout': 60,
+  'Redis lock_key_ttl': 86400
   #'Redis': '5.214.159.2'  
 }
