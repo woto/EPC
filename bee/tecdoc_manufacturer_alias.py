@@ -4,5 +4,7 @@ tecdoc_manufacturer_alias = {
   'HENGST': 'HENGST FILTER',
   'AMC FILTER': 'AMC Filter',
   'MAHLE': 'MAHLE ORIGINAL',
-  'MANN': 'MANN-FILTER'
+  'MANN': 'MANN-FILTER',
+  'VICTOR REINZ': 'REINZ',
+  'HERTH+BUSS': 'HERTH+BUSS JAKOPARTS'
 }

@@ -1,5 +1,6 @@
 #coding=UTF-8
 
+import StringIO, urllib2, pdb
 import pyscreenshot as ImageGrab
 import win32api, win32con
 from itertools import izip, tee
@@ -8,6 +9,10 @@ import pyscreenshot as ImageGrab
 import os, re, logging, time
 from window_mgr import WindowMgr
 from config import *
+
+from poster.encode import multipart_encode
+from poster.encode import MultipartParam
+from poster.streaminghttp import register_openers
 
 
 
@@ -102,6 +107,7 @@ def find_match(file_name, template_array, roi, minimal, debug):
       im = ImageGrab.grab()
     im.save(file_name)
 
+
   img = cv.CreateImageHeader(im.size, cv.IPL_DEPTH_8U, 3)
   cv.SetData(img, im.tostring(), im.size[0]*3)
   cv.CvtColor(img, img, cv.CV_RGB2BGR)      
@@ -179,3 +185,34 @@ def pil2gray(img_pil):
   img_gray = cv.CreateImage(img_pil.size, cv.IPL_DEPTH_8U, 1)
   cv.CvtColor(img_rgb, img_gray, cv.CV_RGB2GRAY)
   return img_gray
+
+def put_screenshot_to_webdis(catalog_number, manufacturer):
+  im = ImageGrab.grab()
+  
+  im = ImageGrab.grab()
+  fil=StringIO.StringIO()
+  im.save(fil,"png")
+  
+  # Register the streaming http handlers with urllib2
+  register_openers()
+
+  # Start the multipart/form-data encoding of the file "DSC0001.jpg"
+  # "image1" is the name of the parameter, which is normally set
+  # via the "name" parameter of the HTML <input> tag.
+
+  # headers contains the necessary Content-Type and Content-Length
+  # datagen is a generator object that yields the encoded parameters
+  
+  #mp1 = MultipartParam("Filename", name + ".png")
+  
+  mp1 = MultipartParam("parts_image[catalog_number]", catalog_number)
+  mp2 = MultipartParam("parts_image[manufacturer]", manufacturer)
+  mp3 = MultipartParam("parts_image[part_image]", filename=catalog_number + ":" + manufacturer + ".png", filetype="application/octet-stream", fileobj=fil)
+
+  datagen, headers =  multipart_encode([mp1, mp2, mp3])
+
+  # Create the Request object
+  request = urllib2.Request("http://" + config['Parts Images Address'] + "/parts_images.json", datagen, headers)
+
+  # Actually do the request, and get the response
+  return urllib2.urlopen(request).read()

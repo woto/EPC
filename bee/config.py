@@ -38,7 +38,8 @@
       'path': 'C:\MMC\ASA\M60\PROG\ASA.exe'
     }
   },
-  'Redis': 'kaprika.ru',
+  'Redis': 'www.yaponama.ru',
+  'Parts Images Address': 'www.yaponama.ru',
   'Redis socket_timeout': 60,
   'Redis lock_key_ttl': 86400
   #'Redis': '5.214.159.2'  

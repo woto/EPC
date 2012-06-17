@@ -1,7 +1,6 @@
 ﻿#coding=UTF-8
 
 import time, redis, json, sys, logging, pdb, sys, os, re, time, random, shutil, subprocess, Image, ImageChops, time, math, random, pdb, win32api, win32con
-
 import win32clipboard
 import win32com.client as comclt
 from window_mgr import WindowMgr
@@ -505,7 +504,6 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
     
   check_or_start_tecdoc()
   sleep = 0
-  i = 0
     
   while True:
     try:
@@ -518,6 +516,10 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
       wmgr.set_foreground(True, True, True)
       logging.debug('Считаем, что сделали TECDOC активным')
 
+      logging.debug('Спим ' + str(sleep) + 'с. перед щелчком на увеличительном стекле (как выяснилось из внутренних разделов меню {а так же если не ошибаюсь при запуске}) мы не выходим на начальное требуемое состояние.')
+      time.sleep(sleep)
+      click(219, 53)
+      
       logging.debug('Спим ' + str(sleep) + 'с. перед отправкой в него ESC')
       time.sleep(sleep)
       logging.debug('Нажимаем ESC')
@@ -568,7 +570,7 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
 
           #for i in range(1):
           if True:
-            logging.debug('Ищем ' + str(i+1) + ' раз наличие, либо отсутсвтие информации по запчасти') 
+            logging.debug('Ищем наличие, либо отсутсвтие информации по запчасти') 
             
             logging.debug('Ищем окно, сообщающее, что каталожный номер не найден') 
             coords = find_match(None, ['images/Tecdoc/Not Found.png'], (564, 466, 732, 584), 100, False)
@@ -651,10 +653,10 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
               if(tecdoc_manufacturer != clipboard_data):
                 logging.debug("Искомый и ни один из найденных производителей не совпали")
                 # TODO тут тоже сделать возврат пустышки
-                print ''
-                print catalog_number
-                print tecdoc_manufacturer
-                print ''
+                #print ''
+                #print catalog_number
+                #print tecdoc_manufacturer
+                #print ''
                 #pdb.set_trace()
                 
                 rs.publish('queen', json.dumps({
@@ -666,14 +668,162 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 }))                          
                 
               else:
-                logging.debug("Искомый и доступный среди найденных производителей совпали, отправляем пока что пустышку")
+                logging.debug("Искомый и доступный среди найденных производителей совпали")
+                logging.debug("Делаем двойной клик на оранжевой полоске детали")
+                click(391, 212)
+                time.sleep(0.2)
+                click(391, 212)  
+                
+                # Порно
+                tab_area = (192, 173, 1277, 225)
+                
+                time.sleep(2)
+                
                 rs.publish('queen', json.dumps({
                   'caps': 'Tecdoc',
                   'manufacturer': data['manufacturer'],
                   'command': 'specifically_number_info',
                   'catalog_number': data['catalog_number'],
-                  'data': '1'
-                }))                  
+                  'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                }))
+                
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Contact Address Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Construct Numbers Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  })) 
+                except:
+                  pass                
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Use in Autos Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass                
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Photo Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)                  
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass         
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Pitcure Tab.png'], (192, 173, 1277, 225), 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))                 
+                except:
+                  pass                  
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Use in Engines Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)                    
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass                
+
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Techincal Image Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass 
+                  
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Picture Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass                   
+                  
+                try:
+                  coords = find_match(None, ['images/Tecdoc/Specification Tab.png'], tab_area, 500, False)
+                  click(coords[0]+tab_area[0], coords[1]+tab_area[1])
+                  time.sleep(2)
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info',
+                    'catalog_number': data['catalog_number'],
+                    'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
+                  }))
+                except:
+                  pass                      
+
+                #time.sleep(1)
+                #
+                #logging.debug("Отправляем пока что пустышку")
+                #
+                #rs.publish('queen', json.dumps({
+                #  'caps': 'Tecdoc',
+                #  'manufacturer': data['manufacturer'],
+                #  'command': 'specifically_number_info',
+                #  'catalog_number': data['catalog_number'],
+                #  'data': collector
+                #}))
               
               logging.debug("Возврат из метода")
               return
@@ -694,8 +844,7 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
       exc_type, exc_object, exc_tb = sys.exc_info()
       fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
       print (exc, exc_type, fname, exc_tb.tb_lineno)
-    
-    i = i + 0.3
+      sleep = sleep + 0.3
 
 while True: 
    
