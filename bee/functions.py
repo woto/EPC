@@ -1,4 +1,4 @@
-#coding=UTF-8
+п»ї#coding=UTF-8
 
 import StringIO, urllib2, pdb
 import pyscreenshot as ImageGrab
@@ -24,66 +24,66 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()
-  logging.debug('Проверяем запущено ли вообще Toyota EPC') 
+  logging.debug('РџСЂРѕРІРµСЂСЏРµРј Р·Р°РїСѓС‰РµРЅРѕ Р»Рё РІРѕРѕР±С‰Рµ Toyota EPC') 
   wmgr.find_window_wildcard("TOYOTA ELECTRONIC PARTS CATALOG(.*)")
   if len(wmgr._handle) == 0:  
-    logging.debug('Нет, запускаем')
+    logging.debug('РќРµС‚, Р·Р°РїСѓСЃРєР°РµРј')
     origWD = os.getcwd()
     os.chdir(re.search("(.*)\/", config['Toyota EPC']['path']).group(0))
     os.startfile(config['Toyota EPC']['path'])
     os.chdir(origWD)
-  logging.debug("Вышли из метода проверки запущенности Toyota EPC. Далее считается, что Toyota EPC запущен")                    
+  logging.debug("Р’С‹С€Р»Рё РёР· РјРµС‚РѕРґР° РїСЂРѕРІРµСЂРєРё Р·Р°РїСѓС‰РµРЅРЅРѕСЃС‚Рё Toyota EPC. Р”Р°Р»РµРµ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ Toyota EPC Р·Р°РїСѓС‰РµРЅ")                    
                     
 def check_or_start_tecdoc():
   logging.debug('check_or_start_tectdoc')
   wmgr = WindowMgr()
-  logging.debug('Ищем окно TECDOC') 
+  logging.debug('РС‰РµРј РѕРєРЅРѕ TECDOC') 
   wmgr.find_window_wildcard(".*TECDOC(.*)")
   if len(wmgr._handle) == 0:
-    logging.debug('TECDOC не был запущен, запускаем') 
+    logging.debug('TECDOC РЅРµ Р±С‹Р» Р·Р°РїСѓС‰РµРЅ, Р·Р°РїСѓСЃРєР°РµРј') 
     origWD = os.getcwd()
     os.chdir(re.search("(.*)\/", config['Tecdoc']['path']).group(0))
     os.startfile(config['Tecdoc']['path'])
     os.chdir(origWD)
-  logging.debug("Вышли из метода проверки запущенности Tecdoc. Далее считается, что Tecdoc запущен")                    
+  logging.debug("Р’С‹С€Р»Рё РёР· РјРµС‚РѕРґР° РїСЂРѕРІРµСЂРєРё Р·Р°РїСѓС‰РµРЅРЅРѕСЃС‚Рё Tecdoc. Р”Р°Р»РµРµ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ Tecdoc Р·Р°РїСѓС‰РµРЅ")                    
                     
 def check_or_start_febest():
   logging.debug('check_or_start_febest')
   wmgr = WindowMgr()
-  logging.debug('Проверяем запущено ли вообще Febest') 
+  logging.debug('РџСЂРѕРІРµСЂСЏРµРј Р·Р°РїСѓС‰РµРЅРѕ Р»Рё РІРѕРѕР±С‰Рµ Febest') 
   wmgr.find_window_wildcard("(.*)Febest")
   if len(wmgr._handle) == 0:  
-    logging.debug('Нет, запускаем')
+    logging.debug('РќРµС‚, Р·Р°РїСѓСЃРєР°РµРј')
     origWD = os.getcwd()
     os.chdir(re.search("(.*)\/", config['Febest']['path']).group(0))
     os.startfile(config['Febest']['path'])
     os.chdir(origWD)
-    logging.debug('Запустили Febest, сменили рабочую директорию обратно') 
+    logging.debug('Р—Р°РїСѓСЃС‚РёР»Рё Febest, СЃРјРµРЅРёР»Рё СЂР°Р±РѕС‡СѓСЋ РґРёСЂРµРєС‚РѕСЂРёСЋ РѕР±СЂР°С‚РЅРѕ') 
     while True:
       coords = find_match(False, ['images/Febest/OK.png'], (697, 588, 720, 608), 10, False)
-      logging.debug('Ищем кнопку ОК на первом экране') 
+      logging.debug('РС‰РµРј РєРЅРѕРїРєСѓ РћРљ РЅР° РїРµСЂРІРѕРј СЌРєСЂР°РЅРµ') 
       break_upper_2 = False
       if coords:
-        logging.debug('Нашли')
+        logging.debug('РќР°С€Р»Рё')
         break_upper = False
         while True:
-          logging.debug('Нажимаем на кнопку на первом экране')
+          logging.debug('РќР°Р¶РёРјР°РµРј РЅР° РєРЅРѕРїРєСѓ РЅР° РїРµСЂРІРѕРј СЌРєСЂР°РЅРµ')
           time.sleep(0.3)
           click(708, 598)
           for i in range(20):
             coords = find_match(False, ['images/Febest/OK.png'], (697, 588, 720, 608), 10, False)
             
-            logging.debug('Ищем кнопку ОК на втором экране: ' + str(i) + " раз") 
+            logging.debug('РС‰РµРј РєРЅРѕРїРєСѓ РћРљ РЅР° РІС‚РѕСЂРѕРј СЌРєСЂР°РЅРµ: ' + str(i) + " СЂР°Р·") 
             if coords:
-              logging.debug('Нашли') 
+              logging.debug('РќР°С€Р»Рё') 
               time.sleep(0.3)
               click(801, 598)
               break_upper = True
               break
             else:
-              logging.debug('Не нашли, спим') 
+              logging.debug('РќРµ РЅР°С€Р»Рё, СЃРїРёРј') 
 
-          logging.debug("Количество попыток найти кнопку ОК на втором экране превысило допустимое кол-во, произойдет следующая итерация")              
+          logging.debug("РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРїС‹С‚РѕРє РЅР°Р№С‚Рё РєРЅРѕРїРєСѓ РћРљ РЅР° РІС‚РѕСЂРѕРј СЌРєСЂР°РЅРµ РїСЂРµРІС‹СЃРёР»Рѕ РґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»-РІРѕ, РїСЂРѕРёР·РѕР№РґРµС‚ СЃР»РµРґСѓСЋС‰Р°СЏ РёС‚РµСЂР°С†РёСЏ")              
               
           if break_upper:
             break_upper_2 = True
@@ -93,9 +93,9 @@ def check_or_start_febest():
         break
           
       else:
-        logging.debug('Не нашли, спим') 
+        logging.debug('РќРµ РЅР°С€Р»Рё, СЃРїРёРј') 
       
-  logging.debug("Вышли из метода проверки запущенности Febest. Далее считается, что Febest запущен")
+  logging.debug("Р’С‹С€Р»Рё РёР· РјРµС‚РѕРґР° РїСЂРѕРІРµСЂРєРё Р·Р°РїСѓС‰РµРЅРЅРѕСЃС‚Рё Febest. Р”Р°Р»РµРµ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ Febest Р·Р°РїСѓС‰РµРЅ")
 
 def find_match(file_name, template_array, roi, minimal, debug):
 
