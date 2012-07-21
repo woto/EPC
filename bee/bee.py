@@ -9,6 +9,7 @@ from seed_vin import *
 from tecdoc_manufacturer_alias import *
 from juggernaut import Juggernaut
 from config import *
+import cgi
 
 import pyscreenshot as ImageGrab
 
@@ -681,10 +682,11 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                 click(391, 212)
 
                 # Порно
+                
                 tab_area = (192, 173, 1277, 225)
 
-                time.sleep(2)
-
+                time.sleep(2)                               
+                
                 rs.publish('queen', json.dumps({
                   'caps': 'Tecdoc',
                   'manufacturer': data['manufacturer'],
@@ -692,6 +694,46 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                   'catalog_number': data['catalog_number'],
                   'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                 }))
+                
+                time.sleep(0.5)                  
+                  
+                check_or_start_text_catch()
+                prepare_textcatch()
+                time.sleep(1)
+                click(600, 600)
+                time.sleep(1)
+                win32clipboard.OpenClipboard()
+                time.sleep(1)                
+                #win32clipboard.EmptyClipboard()
+                clipboard_data = win32clipboard.GetClipboardData()
+                time.sleep(1)                
+                #win32clipboard.SetClipboardText(text)
+                win32clipboard.CloseClipboard()                
+                time.sleep(1)                
+                
+                #pdb.set_trace()                
+                
+                time.sleep(0.5)                                  
+                
+                rs.publish('queen', json.dumps({
+                  'caps': 'Tecdoc',
+                  'manufacturer': data['manufacturer'],
+                  'command': 'specifically_number_info_text',
+                  'catalog_number': data['catalog_number'],
+                  'data': cgi.escape(unicode(clipboard_data.decode('cp1251')))
+                }))                
+                
+                time.sleep(0.5)                  
+                  
+                wmgr = WindowMgr()
+                wmgr.find_window_wildcard(".*TECDOC(.*)")
+
+                logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+                time.sleep(sleep)
+                wmgr.set_foreground(True, True, True)                
+                
+                time.sleep(0.5)                  
+
 
                 try:
                   coords = find_match(None, ['images/Tecdoc/Contact Address Tab.png'], tab_area, 500, False)
@@ -704,6 +746,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                     'catalog_number': data['catalog_number'],
                     'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                   }))
+                  
+                  time.sleep(0.5)                  
+                  
                 except:
                   pass
 
@@ -718,10 +763,52 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                     'catalog_number': data['catalog_number'],
                     'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                   }))
+
+                  time.sleep(0.5)                  
+                  
+                  check_or_start_text_catch()
+                  prepare_textcatch()
+                  time.sleep(1)
+                  click(600, 600)
+                  time.sleep(1)
+                  win32clipboard.OpenClipboard()
+                  time.sleep(1)                
+                  #win32clipboard.EmptyClipboard()
+                  clipboard_data = win32clipboard.GetClipboardData()
+                  time.sleep(1)                
+                  #win32clipboard.SetClipboardText(text)
+                  win32clipboard.CloseClipboard()                
+                  time.sleep(1)                
+                  
+                  #pdb.set_trace()                
+                  
+                  time.sleep(0.5)                  
+                  
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info_text',
+                    'catalog_number': data['catalog_number'],
+                    'data': cgi.escape(unicode(clipboard_data.decode('cp1251')))
+                  }))                
+                  
+                  time.sleep(0.5)                  
+                  
+                  wmgr = WindowMgr()
+                  wmgr.find_window_wildcard(".*TECDOC(.*)")
+
+                  logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+                  time.sleep(sleep)
+                  wmgr.set_foreground(True, True, True)   
+                  
+                  time.sleep(0.5)                                    
+                  
                 except:
                   pass
+                  
 
                 try:
+                  time.sleep(0.5)                                  
                   coords = find_match(None, ['images/Tecdoc/Use in Autos Tab.png'], tab_area, 500, False)
                   click(coords[0]+tab_area[0], coords[1]+tab_area[1])
                   time.sleep(2)
@@ -732,9 +819,51 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                     'catalog_number': data['catalog_number'],
                     'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                   }))
+                  
+                  time.sleep(0.5)                                    
+                  
+                  check_or_start_text_catch()
+                  prepare_textcatch()
+                  time.sleep(1)
+                  click(600, 600)
+                  time.sleep(1)
+                  win32clipboard.OpenClipboard()
+                  time.sleep(1)                
+                  #win32clipboard.EmptyClipboard()
+                  clipboard_data = win32clipboard.GetClipboardData()
+                  time.sleep(1)                
+                  #win32clipboard.SetClipboardText(text)
+                  win32clipboard.CloseClipboard()                
+                  time.sleep(1)                
+                  
+                  #pdb.set_trace()                
+                  
+                  time.sleep(0.5)                  
+                  
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info_text',
+                    'catalog_number': data['catalog_number'],
+                    'data': cgi.escape(unicode(clipboard_data.decode('cp1251')))
+                  }))                
+                  
+                  time.sleep(0.5)                  
+                  
+                  wmgr = WindowMgr()
+                  wmgr.find_window_wildcard(".*TECDOC(.*)")
+
+                  logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+                  time.sleep(sleep)
+                  wmgr.set_foreground(True, True, True)                    
+                  
+                  time.sleep(0.5)                                    
+                  
                 except:
                   pass
-
+                  
+                  time.sleep(0.5)                  
+                  
                 try:
                   coords = find_match(None, ['images/Tecdoc/Photo Tab.png'], tab_area, 500, False)
                   click(coords[0]+tab_area[0], coords[1]+tab_area[1])
@@ -748,7 +877,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                   }))
                 except:
                   pass
-
+                  
+                  time.sleep(0.5)                  
+                  
                 try:
                   coords = find_match(None, ['images/Tecdoc/Pitcure Tab.png'], (192, 173, 1277, 225), 500, False)
                   click(coords[0]+tab_area[0], coords[1]+tab_area[1])
@@ -762,7 +893,9 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                   }))
                 except:
                   pass
-
+                  
+                  time.sleep(0.5)                  
+                  
                 try:
                   coords = find_match(None, ['images/Tecdoc/Use in Engines Tab.png'], tab_area, 500, False)
                   click(coords[0]+tab_area[0], coords[1]+tab_area[1])
@@ -774,6 +907,45 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                     'catalog_number': data['catalog_number'],
                     'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                   }))
+                  
+                  time.sleep(0.5)                                    
+                  
+                  check_or_start_text_catch()
+                  prepare_textcatch()
+                  time.sleep(1)
+                  click(600, 600)
+                  time.sleep(1)
+                  win32clipboard.OpenClipboard()
+                  time.sleep(1)                
+                  #win32clipboard.EmptyClipboard()
+                  clipboard_data = win32clipboard.GetClipboardData()
+                  time.sleep(1)                
+                  #win32clipboard.SetClipboardText(text)
+                  win32clipboard.CloseClipboard()                
+                  time.sleep(1)                
+                  
+                  #pdb.set_trace()                
+                  time.sleep(0.5)                  
+                  
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info_text',
+                    'catalog_number': data['catalog_number'],
+                    'data': cgi.escape(unicode(clipboard_data.decode('cp1251')))
+                  }))  
+
+                  time.sleep(0.5)                  
+                  
+                  wmgr = WindowMgr()
+                  wmgr.find_window_wildcard(".*TECDOC(.*)")
+
+                  logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+                  time.sleep(sleep)
+                  wmgr.set_foreground(True, True, True)                    
+                  
+                  time.sleep(0.5)
+                  
                 except:
                   pass
 
@@ -816,6 +988,42 @@ def search_in_tecdoc(catalog_number, manufacturer, data):
                     'catalog_number': data['catalog_number'],
                     'data': put_screenshot_to_webdis(data['catalog_number'], data['manufacturer'])
                   }))
+                  
+                  time.sleep(0.5)
+                  
+                  check_or_start_text_catch()
+                  prepare_textcatch()
+                  time.sleep(1)
+                  click(600, 600)
+                  time.sleep(1)
+                  win32clipboard.OpenClipboard()
+                  time.sleep(1)                
+                  #win32clipboard.EmptyClipboard()
+                  clipboard_data = win32clipboard.GetClipboardData()
+                  time.sleep(1)                
+                  #win32clipboard.SetClipboardText(text)
+                  win32clipboard.CloseClipboard()                
+                  time.sleep(1)                
+                  
+                  #pdb.set_trace()                
+                  
+                  rs.publish('queen', json.dumps({
+                    'caps': 'Tecdoc',
+                    'manufacturer': data['manufacturer'],
+                    'command': 'specifically_number_info_text',
+                    'catalog_number': data['catalog_number'],
+                    'data': cgi.escape(unicode(clipboard_data.decode('cp1251')))
+                  }))                
+                  
+                  wmgr = WindowMgr()
+                  wmgr.find_window_wildcard(".*TECDOC(.*)")
+
+                  logging.debug('Спим ' + str(sleep) + 'с. перед тем как сделать активным TECDOC')
+                  time.sleep(sleep)
+                  wmgr.set_foreground(True, True, True)                    
+                  
+                  time.sleep(0.5)
+                  
                 except:
                   pass
 

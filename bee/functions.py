@@ -21,6 +21,44 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)s in \'%(module)s\
                     level=logging.DEBUG, 
                     filename='../logs/application.log')
 
+def prepare_textcatch():
+  sleep = 0.1
+  while True:
+    break_outer_loop = False
+    time.sleep(sleep)
+    coords = find_match(False, ['images/TextCatch/Sight.png'], None, 100, False)
+    time.sleep(sleep)
+    if coords:
+      time.sleep(sleep)
+      click(coords[0], coords[1])
+      #while True:
+      #  time.sleep(sleep)
+      #  coords = find_match(False, ['images/TextCatch/choose_window.png'], None, 100, False)
+      #  if coords:
+      #    break_outer_loop = True
+      #    break
+      #  sleep += 0.1
+      time.sleep(0.5)
+      break
+      #print break_outer_loop
+      #if break_outer_loop:
+      #  break
+    sleep += 0.1
+    
+def check_or_start_text_catch():
+  logging.debug('check_or_start_text_catch')
+  wmgr = WindowMgr()
+  logging.debug('Проверяем запущен ли вообще TextCatch') 
+  wmgr.find_window_wildcard("TextCatch(.*)")
+  if len(wmgr._handle) == 0:  
+    logging.debug('Нет, запускаем')
+    origWD = os.getcwd()
+    os.chdir(re.search("(.*)\/", config['TextCatch']['path']).group(0))
+    os.startfile(config['TextCatch']['path'])
+    os.chdir(origWD)
+  wmgr.set_foreground(False, True, True, 0)
+  logging.debug("Вышли из метода проверки запущенности TextCatch. Далее считается, что TextCatch запущен")
+
 def check_or_start_toyota_epc():
   logging.debug('check_or_start_toyota_epc')
   wmgr = WindowMgr()
