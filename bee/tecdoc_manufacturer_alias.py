@@ -6,5 +6,6 @@ tecdoc_manufacturer_alias = {
   'MAHLE': 'MAHLE ORIGINAL',
   'MANN': 'MANN-FILTER',
   'VICTOR REINZ': 'REINZ',
-  'HERTH+BUSS': 'HERTH+BUSS JAKOPARTS'
+  'HERTH+BUSS': 'HERTH+BUSS JAKOPARTS',
+  'KAVO': 'KAVO PARTS'
 }
