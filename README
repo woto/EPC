@@ -1,4 +1,4 @@
-﻿tecdoc 
+tecdoc 
   km-008 - закладка спецификация
   
   
@@ -50,7 +50,7 @@ DYNA 150/TOYOACE G15 - LY10#,11#,12#,13#,15#,16#,YY101,121,131
 
 Особая ситуация возникает на примере с деталью 94184-61001
 Если смотреть на моем сайте результат подходящих моделей, то в списке среди прочих так же будет и
-003	            94184-61001      	004804	02	662230	RAV4	200808-	ACA38..GEN ACA30,33,ALA3#,GSA33,ZSA3#..ATYPE
+003              94184-61001      	004804	02	662230	RAV4	200808-	ACA38..GEN ACA30,33,ALA3#,GSA33,ZSA3#..ATYPE
 , но если попытаться найти изображение этой детали, то оно будет отсутстовать, такое же поведение и на экзисте.
 
 
@@ -124,7 +124,8 @@ INSTALL
 6. phpvirtualbox-4.1-7
 7. rdesktop
 
-01. http://msysgit.github.com/ (на 13 авг. 2012 это http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe)
+
+01. git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
 02. mingw 20111118 http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe/download
 03. Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
 04. setuptools 0.6c11 http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
