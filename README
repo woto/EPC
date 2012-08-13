@@ -124,8 +124,7 @@ INSTALL
 6. phpvirtualbox-4.1-7
 7. rdesktop
 
-00. http://msysgit.github.com/ (на 13 авг. 2012 это http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe)
-01. git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
+01. http://msysgit.github.com/ (на 13 авг. 2012 это http://msysgit.googlecode.com/files/Git-1.7.11-preview20120710.exe)
 02. mingw 20111118 http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe/download
 03. Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
 04. setuptools 0.6c11 http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20
