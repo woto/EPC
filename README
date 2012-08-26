@@ -125,6 +125,7 @@ INSTALL
 7. rdesktop
 
 
+00. (Новый Git поддерживает UTF-8, необходима дополнительная настройка, http://stackoverflow.com/questions/5854967/git-msysgit-accents-utf-8-the-definitive-answers)
 01. git 20111229 http://code.google.com/p/msysgit/downloads/detail?name=Git-1.7.8-preview20111229-unicode.exe
 02. mingw 20111118 http://sourceforge.net/projects/mingw/files/Installer/mingw-get-inst/mingw-get-inst-20111118/mingw-get-inst-20111118.exe/download
 03. Python 2.7.2 http://www.python.org/ftp/python/2.7.2/python-2.7.2.msi
@@ -137,6 +138,7 @@ INSTALL
 10. #> easy_install pip
 11. #> pip install juggernaut # juggernaut 0.2, redis 2.4.11
 12. #> pip install pyscreenshot # 0.2.2, yapsi 1.8
+12.1 #> pip install poster # 0.8.1
 13. opencv 2.3.1 http://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.3.1/OpenCV-2.3.1-win-superpack.exe/download
   a) Распаковывать в c:\
 14. cmake 2.8.7 http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.exe  
